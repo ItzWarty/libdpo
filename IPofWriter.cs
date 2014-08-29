@@ -13,6 +13,8 @@ namespace Dargon.PortableObjects
       void WriteU32(int slot, uint value);
       void WriteS64(int slot, long value);
       void WriteU64(int slot, ulong value);
+      void WriteFloat(int slot, float value);
+      void WriteDouble(int slot, double value);
       void WriteChar(int slot, char value);
       void WriteString(int slot, string value);
       void WriteBoolean(int slot, bool value);

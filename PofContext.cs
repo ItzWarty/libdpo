@@ -16,6 +16,15 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectTypes();
       }
 
+      public void MergeContext(PofContext context)
+      {
+         foreach (var kvp in context.typeByTypeId) {
+            if (kvp.Key >= 0) {
+               RegisterPortableObjectType(kvp.Key, kvp.Value);
+            }
+         }
+      }
+
       private void RegisterReservedPortableObjectTypes()
       {
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_S8, typeof(sbyte));

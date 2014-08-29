@@ -12,6 +12,8 @@ namespace Dargon.PortableObjects
       uint ReadU32(int slot);
       long ReadS64(int slot);
       ulong ReadU64(int slot);
+      float ReadFloat(int slot);
+      double ReadDouble(int slot);
       char ReadChar(int slot);
       string ReadString(int slot);
       bool ReadBoolean(int slot);
