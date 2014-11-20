@@ -2,8 +2,7 @@ using System.IO;
 
 namespace Dargon.PortableObjects
 {
-   public class PofSerializer
-   {
+   public class PofSerializer : IPofSerializer {
       private readonly PofContext context;
 
       public PofSerializer(PofContext context)

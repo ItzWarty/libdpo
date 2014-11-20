@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="IPofContext.cs" />
     <Compile Include="IPofReader.cs" />
+    <Compile Include="IPofSerializer.cs" />
     <Compile Include="IPofWriter.cs" />
     <Compile Include="IPortableObject.cs" />
     <Compile Include="ISlotDestination.cs" />
