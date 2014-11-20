@@ -45,7 +45,7 @@
     </Reference>
     <Reference Include="libwarty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\libwarty.0.0.3\lib\portable-net45+netcore45+MonoAndroid1+MonoTouch1\libwarty.dll</HintPath>
+      <HintPath>..\packages\libwarty.0.0.5\lib\portable-net45+netcore45+MonoAndroid1+MonoTouch1\libwarty.dll</HintPath>
     </Reference>
     <Reference Include="NMockito, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -69,7 +69,6 @@
   <ItemGroup>
     <Compile Include="PofWriterTest.cs" />
     <Compile Include="PofReaderTest.cs" />
-    <None Include="packages.config" />
     <Compile Include="PortableObjectIT.cs" />
     <Compile Include="ReflectionLearningTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +78,9 @@
       <Project>{da87b9e0-3584-4448-97b5-9877cac44352}</Project>
       <Name>libdpo</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
