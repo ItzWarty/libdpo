@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Dargon Portable Object Library")]
-[assembly: AssemblyDescription("Portable Object serialization/deserialization.")]
+[assembly: AssemblyDescription("Portable Object serialization and deserialization.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("The Dargon Project")]
 [assembly: AssemblyProduct("libdpo")]
