@@ -4,9 +4,9 @@ using System.Text;
 namespace Dargon.PortableObjects
 {
    public class PofSerializer : IPofSerializer {
-      private readonly PofContext context;
+      private readonly IPofContext context;
 
-      public PofSerializer(PofContext context)
+      public PofSerializer(IPofContext context)
       {
          this.context = context;
       }
