@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using ItzWarty;
 using NMockito;
 using Xunit;
@@ -127,7 +128,7 @@ namespace Dargon.PortableObjects.Tests
          testObj.WriteString(SLOT_INDEX, value);
          byte[] data;
          using (var ms = new MemoryStream()) {
-            using (var writer = new BinaryWriter(ms)) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.WriteNullTerminatedString(value);
             }
             data = ms.ToArray();

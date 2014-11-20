@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 
 namespace Dargon.PortableObjects
 {
@@ -32,7 +33,7 @@ namespace Dargon.PortableObjects
       public T Deserialize<T>(Stream stream)
          where T : IPortableObject
       {
-         using (var reader = new BinaryReader(stream))
+         using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
             return Deserialize<T>(reader);
       }
 

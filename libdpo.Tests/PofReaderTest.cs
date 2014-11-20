@@ -1,4 +1,5 @@
-﻿using ItzWarty;
+﻿using System.Text;
+using ItzWarty;
 using NMockito;
 using System;
 using System.IO;
@@ -126,7 +127,7 @@ namespace Dargon.PortableObjects.Tests
          const string value = "There is no spoon!";
          byte[] data;
          using (var ms = new MemoryStream()) {
-            using (var writer = new BinaryWriter(ms)) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.WriteNullTerminatedString(value);
             }
             data = ms.ToArray();

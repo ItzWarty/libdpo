@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text;
 using ItzWarty;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,7 @@ namespace Dargon.PortableObjects
       public void WriteString(int slot, string value)
       {
          using (var ms = new MemoryStream()) {
-            using (var writer = new BinaryWriter(ms)) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.WriteNullTerminatedString(value);
             }
             destination.SetSlot(slot, ms.ToArray());
@@ -67,7 +68,7 @@ namespace Dargon.PortableObjects
       public void WriteObject<T>(int slot, T portableObject)
       {
          using (var ms = new MemoryStream()) {
-            using (var writer = new BinaryWriter(ms)) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                WriteType(writer, portableObject.GetType());
                WriteObjectWithoutTypeDescription<T>(writer, portableObject);
             }
@@ -92,7 +93,7 @@ namespace Dargon.PortableObjects
       public void WriteArray<T>(int slot, T[] array, bool elementsCovariant = false) 
       {
          using (var ms = new MemoryStream()) {
-            using (var writer = new BinaryWriter(ms)) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.Write((int)array.Length);
                WriteType(writer, typeof(T));
 
@@ -110,7 +111,7 @@ namespace Dargon.PortableObjects
       public void WriteMap<TKey, TValue>(int slot, IDictionary<TKey, TValue> dict, bool keysCovariant = false, bool valuesCovariant = false) 
       {
          using (var ms = new MemoryStream()) {
-            using (var writer = new BinaryWriter(ms)) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.Write(dict.Count);
                WriteType(writer, typeof(TKey));
                WriteType(writer, typeof(TValue));

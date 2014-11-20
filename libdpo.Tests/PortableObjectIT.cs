@@ -48,7 +48,7 @@ namespace Dargon.PortableObjects.Tests
             }
             ms.Position = 0;
             Console.WriteLine(ms.ToArray().ToHex());
-            using (var reader = new BinaryReader(ms)) {
+            using (var reader = new BinaryReader(ms, Encoding.UTF8, true)) {
                levelRemovalProcessor = serializer.Deserialize<RemovalByLevelThresholdProcessor>(reader);
                friendClearingProcessor = serializer.Deserialize<FriendClearingProcessor>(reader);
             }

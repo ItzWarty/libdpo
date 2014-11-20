@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using ItzWarty;
 
 namespace Dargon.PortableObjects
@@ -87,8 +88,8 @@ namespace Dargon.PortableObjects
 
       public T[] ReadArray<T>(int slot, bool elementsCovariant = false)
       {
-         using (var stream = GetSlotMemoryStream(slot))
-         using (var reader = new BinaryReader(stream))
+         using (var stream = CreateSlotMemoryStream(slot))
+         using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
          {
             int length = reader.ReadInt32();
             var type = ParseType(reader);
@@ -103,8 +104,8 @@ namespace Dargon.PortableObjects
 
       public IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysCovariant = false, bool valuesCovariant = false, IDictionary<TKey, TValue> dict = null)
       {
-         using (var stream = GetSlotMemoryStream(slot))
-         using (var reader = new BinaryReader(stream))
+         using (var stream = CreateSlotMemoryStream(slot))
+         using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
          {
             int kvpCount = reader.ReadInt32();
             var keyType = ParseType(reader);
@@ -132,10 +133,10 @@ namespace Dargon.PortableObjects
 
       private BinaryReader GetSlotBinaryReader(int slot)
       {
-         return new BinaryReader(GetSlotMemoryStream(slot));
+         return new BinaryReader(CreateSlotMemoryStream(slot));
       }
 
-      private MemoryStream GetSlotMemoryStream(int slot)
+      private MemoryStream CreateSlotMemoryStream(int slot)
       {
          return new MemoryStream(slots[slot]);
       }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace Dargon.PortableObjects
 {
@@ -21,7 +22,7 @@ namespace Dargon.PortableObjects
 
       public void WriteToStream(Stream stream)
       {
-         using (var writer = new BinaryWriter(stream)) {
+         using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
             WriteToWriter(writer);
          }
       }
