@@ -13,10 +13,9 @@ namespace Dargon.PortableObjects
 
       public void Serialize<T>(Stream stream, T portableObject) where T : IPortableObject
       {
-         var slotDestination = new SlotDestination();
-         var pofWriter = new PofWriter(context, slotDestination);
-         pofWriter.WriteToSlots(portableObject);
-         slotDestination.WriteToStream(stream);
+         using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
+            Serialize(writer, portableObject);
+         }
       }
 
       public void Serialize<T>(BinaryWriter writer, T portableObject) where T : IPortableObject 

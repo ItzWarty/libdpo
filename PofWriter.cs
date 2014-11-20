@@ -146,7 +146,6 @@ namespace Dargon.PortableObjects
          s.Push(input);
          while (s.Any()) {
             var type = s.Pop();
-            Console.WriteLine("=> {0}", type);
             if (type.IsGenericType) {
                types.Add(type.GetGenericTypeDefinition());
                foreach (var genericArgument in type.GetGenericArguments())
