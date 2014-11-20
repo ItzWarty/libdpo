@@ -74,10 +74,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\libwarty\ItzWarty.csproj">
-      <Project>{097b6b08-4034-408a-b3c0-a12e8f9e8893}</Project>
-      <Name>ItzWarty</Name>
-    </ProjectReference>
     <ProjectReference Include="..\libdpo.csproj">
       <Project>{da87b9e0-3584-4448-97b5-9877cac44352}</Project>
       <Name>libdpo</Name>
