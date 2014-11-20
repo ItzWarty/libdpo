@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 
@@ -18,6 +19,7 @@ namespace Dargon.PortableObjects
       void WriteChar(int slot, char value);
       void WriteString(int slot, string value);
       void WriteBoolean(int slot, bool value);
+      void WriteGuid(int slot, Guid value);
       void WriteObject<T>(int slot, T portableObject);
       void WriteArray<T>(int slot, T[] array, bool elementsCovariant = false);
       void WriteMap<TKey, TValue>(int slot, IDictionary<TKey, TValue> value, bool keysCovariant = false, bool valuesCovariant = false);

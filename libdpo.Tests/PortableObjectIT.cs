@@ -27,8 +27,8 @@ namespace Dargon.PortableObjects.Tests
       {
          const string name1 = "Henry has a first name!";
          const string name2 = "Larry doesn't have a last name!";
-         var key1 = new PersonKey(name1);
-         var key2 = new PersonKey(name2);
+         var key1 = new PersonKey(Guid.NewGuid(), name1);
+         var key2 = new PersonKey(Guid.NewGuid(), name2);
 
          var personEntry1 = new PersonEntry(key1, 10);
          var personEntry2 = new PersonEntry(key2, 5);
@@ -110,21 +110,32 @@ namespace Dargon.PortableObjects.Tests
          public bool IsPresent() { return isPresent; }
       }
 
-      public class PersonKey : IPortableObject
-      {
+      public class PersonKey : IPortableObject {
+         private Guid guid;
          private string name;
 
          public PersonKey() { }
-         public PersonKey(string name) { this.name = name; }
 
-         public void Serialize(IPofWriter writer) { writer.WriteString(0, name); }
-         public void Deserialize(IPofReader reader) { name = reader.ReadString(0); }
+         public PersonKey(Guid guid, string name) {
+            this.guid = guid;
+            this.name = name;
+         }
+
+         public void Serialize(IPofWriter writer) {
+            writer.WriteGuid(0, guid);
+            writer.WriteString(1, name);
+         }
+
+         public void Deserialize(IPofReader reader) {
+            guid = reader.ReadGuid(0);
+            name = reader.ReadString(1);
+         }
 
          public override bool Equals(object obj)
          {
             var asKey = obj as PersonKey;
             if (asKey == null) return false;
-            else return name.Equals(asKey.name);
+            else return guid.Equals(asKey.guid) && name.Equals(asKey.name);
          }
 
          public override int GetHashCode()

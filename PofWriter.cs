@@ -25,6 +25,7 @@ namespace Dargon.PortableObjects
          {typeof(char), (writer, o) => writer.Write((char)o)},
          {typeof(string), (writer, o) => writer.Write((string)o)},
          {typeof(bool), (writer, o) => writer.Write((bool)o)},
+         {typeof(Guid), (writer, o) => writer.Write((Guid)o)}
       }; 
 
       public PofWriter(IPofContext context, ISlotDestination destination)
@@ -61,6 +62,7 @@ namespace Dargon.PortableObjects
       }
 
       public void WriteBoolean(int slot, bool value) { destination.SetSlot(slot, value ? DATA_BOOLEAN_TRUE : DATA_BOOLEAN_FALSE); }
+      public void WriteGuid(int slot, Guid value) { destination.SetSlot(slot, value.ToByteArray()); }
 
       public void WriteObject<T>(int slot, T portableObject)
       {

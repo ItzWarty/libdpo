@@ -134,5 +134,12 @@ namespace Dargon.PortableObjects.Tests
          }
          Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
+
+      [Fact]
+      public void TestGuid() {
+         var guid = Guid.NewGuid();
+         testObj.WriteGuid(SLOT_INDEX, guid);
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(guid.ToByteArray()));
+      }
    }
 }

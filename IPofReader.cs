@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Dargon.PortableObjects
 {
@@ -17,6 +18,7 @@ namespace Dargon.PortableObjects
       char ReadChar(int slot);
       string ReadString(int slot);
       bool ReadBoolean(int slot);
+      Guid ReadGuid(int slot);
       T ReadObject<T>(int slot);
       T[] ReadArray<T>(int slot, bool elementsInvariant = false);
       IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysInvariant = false, bool valuesInvariant = false, IDictionary<TKey, TValue> dict = null);

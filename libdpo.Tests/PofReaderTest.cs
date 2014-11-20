@@ -134,5 +134,12 @@ namespace Dargon.PortableObjects.Tests
          When(slotSource[kSlotIndex]).ThenReturn(data);
          AssertEquals(value, testObj.ReadString(kSlotIndex));
       }
+
+      [Fact]
+      public void ReadGuidTest() {
+         var guid = Guid.NewGuid();
+         When(slotSource[kSlotIndex]).ThenReturn(guid.ToByteArray());
+         AssertEquals(guid, testObj.ReadGuid(kSlotIndex));
+      }
    }
 }

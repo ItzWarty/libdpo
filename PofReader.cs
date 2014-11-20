@@ -23,6 +23,7 @@ namespace Dargon.PortableObjects
          {typeof(char), (reader) => reader.ReadChar()},
          {typeof(string), (reader) => reader.ReadNullTerminatedString()},
          {typeof(bool), (reader) => reader.ReadByte() != 0 },
+         {typeof(Guid), (reader) => reader.ReadGuid() }
       };
 
       public PofReader(IPofContext context, ISlotSource slots)
@@ -56,6 +57,7 @@ namespace Dargon.PortableObjects
       }
 
       public bool ReadBoolean(int slot) { return slots[slot][0] != 0; }
+      public Guid ReadGuid(int slot) { return new Guid(slots[slot]); }
 
       public T ReadObject<T>(int slot) 
       {
