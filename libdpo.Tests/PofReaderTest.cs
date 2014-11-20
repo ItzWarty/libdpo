@@ -1,132 +1,127 @@
-﻿using System;
+﻿using ItzWarty;
+using NMockito;
+using System;
 using System.IO;
-using System.Linq.Expressions;
-using ItzWarty;
-using ItzWarty.Test;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using Xunit;
 
 namespace Dargon.PortableObjects.Tests
 {
-   [TestClass]
-   public unsafe class PofReaderTest : MockitoLike
+   public unsafe class PofReaderTest : NMockitoInstance
    {
-      private const int SLOT_INDEX = 123;
-
-      private PofReader testObj;
+      private readonly PofReader testObj;
       
-      [Mock] private readonly IPofContext context;
-      [Mock] private readonly ISlotSource slotSource;
+      [Mock] private readonly IPofContext context = null;
+      [Mock] private readonly ISlotSource slotSource = null;
 
-      [TestInitialize]
-      public void Setup()
+      private const int kSlotIndex = 123;
+
+      public PofReaderTest()
       {
-         InitializeMocks();
          testObj = new PofReader(context, slotSource);
       }
 
-      [TestMethod]
-      public void TestReadS8()
+      [Fact]
+      public void ReadS8Test()
       {
          sbyte value = -123;
          var data = new byte[] { *(byte*)&value };
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadS8(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadS8(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadU8()
+      [Fact]
+      public void ReadU8Test()
       {
          const byte value = 123;
          var data = new byte[] { value };
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadU8(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadU8(kSlotIndex));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestReadS16()
       {
          const short value = -12356;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadS16(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadS16(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadU16()
+      [Fact]
+      public void ReadU16Test()
       {
          const ushort value = 58692;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadU16(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadU16(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadS32()
+      [Fact]
+      public void ReadS32Test()
       {
          const int value = int.MinValue;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadS32(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadS32(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadU32()
+      [Fact]
+      public void ReadU32Test()
       {
          const uint value = uint.MaxValue;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadU32(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadU32(kSlotIndex));
       }
 
 
-      [TestMethod]
-      public void TestReadS64()
+      [Fact]
+      public void ReadS64Test()
       {
          const long value = long.MinValue;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadS64(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadS64(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadU64()
+      [Fact]
+      public void ReadU64Test()
       {
          const ulong value = ulong.MaxValue;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadU64(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadU64(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadFloat()
+      [Fact]
+      public void ReadFloatTest()
       {
          const float value = 13.37f;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadFloat(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadFloat(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadDouble()
+      [Fact]
+      public void ReadDoubleTest()
       {
          const double value = 13333.333337;
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadDouble(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadDouble(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadChar()
+      [Fact]
+      public void ReadCharTest()
       {
          const char value = 'a';
          var data = BitConverter.GetBytes(value);
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadChar(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadChar(kSlotIndex));
       }
 
-      [TestMethod]
-      public void TestReadString()
+      [Fact]
+      public void ReadStringTest()
       {
          const string value = "There is no spoon!";
          byte[] data;
@@ -136,8 +131,8 @@ namespace Dargon.PortableObjects.Tests
             }
             data = ms.ToArray();
          }
-         when(() => slotSource[SLOT_INDEX]).ThenReturn(data);
-         assertEquals(value, testObj.ReadString(SLOT_INDEX));
+         When(slotSource[kSlotIndex]).ThenReturn(data);
+         AssertEquals(value, testObj.ReadString(kSlotIndex));
       }
    }
 }

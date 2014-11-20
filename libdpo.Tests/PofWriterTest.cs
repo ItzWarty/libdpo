@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq.Expressions;
 using ItzWarty;
-using ItzWarty.Test;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using NMockito;
+using Xunit;
 
 namespace Dargon.PortableObjects.Tests
 {
-   [TestClass]
-   public unsafe class PofWriterTest : MockitoLike
+   public unsafe class PofWriterTest : NMockitoInstance
    {
       private const int SLOT_INDEX = 123;
 
@@ -18,113 +16,111 @@ namespace Dargon.PortableObjects.Tests
       [Mock] private readonly IPofContext context = null;
       [Mock] private readonly ISlotDestination slotDestination = null;
 
-      [TestInitialize]
-      public void Setup()
+      public PofWriterTest()
       {
-         InitializeMocks();
          testObj = new PofWriter(context, slotDestination);
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteS8()
       {
          sbyte value = -123;
          testObj.WriteS8(SLOT_INDEX, value);
          var data = new byte[] { *(byte*)&value };
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteU8()
       {
          const byte value = 123;
          testObj.WriteU8(SLOT_INDEX, value);
          var data = new byte[] { value };
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteS16()
       {
          const short value = short.MinValue;
          testObj.WriteS16(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteU16()
       {
          const ushort value = ushort.MaxValue;
          testObj.WriteU16(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteS32()
       {
          const int value = int.MinValue;
          testObj.WriteS32(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteU32()
       {
          const uint value = uint.MaxValue;
          testObj.WriteU32(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteS64()
       {
          const long value = long.MinValue;
          testObj.WriteS64(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteU64()
       {
          const ulong value = ulong.MaxValue;
          testObj.WriteU64(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteFloat()
       {
          const float value = 13.37f;
          testObj.WriteFloat(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteDouble()
       {
          const double value = Math.PI;
          testObj.WriteDouble(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteChar()
       {
          const char value = 'a';
          testObj.WriteChar(SLOT_INDEX, value);
          var data = BitConverter.GetBytes(value);
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
 
-      [TestMethod]
+      [Fact]
       public void TestWriteString()
       {
          const string value = "There is no spoon!";
@@ -136,7 +132,7 @@ namespace Dargon.PortableObjects.Tests
             }
             data = ms.ToArray();
          }
-         verify(() => slotDestination.SetSlot(SLOT_INDEX, data));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
       }
    }
 }

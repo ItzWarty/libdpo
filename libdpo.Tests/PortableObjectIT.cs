@@ -1,16 +1,15 @@
 ﻿using System.Linq;
 using ItzWarty;
-using ItzWarty.Test;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NMockito;
+using Xunit;
 
 namespace Dargon.PortableObjects.Tests
 {
-   [TestClass]
-   public class PortableObjectIT : MockitoLike
+   public class PortableObjectIT : NMockitoInstance
    {
       private readonly PofContext context;
 
@@ -23,7 +22,7 @@ namespace Dargon.PortableObjects.Tests
          context.RegisterPortableObjectType(0x30291dea, typeof(FriendClearingProcessor));
       }
 
-      [TestMethod]
+      [Fact]
       public void RunTest()
       {
          const string name1 = "Henry has a first name!";
@@ -64,8 +63,8 @@ namespace Dargon.PortableObjects.Tests
          levelRemovalProcessor.Process(entry1);
          levelRemovalProcessor.Process(entry2);
 
-         assertTrue(entry1.IsPresent());
-         assertFalse(entry2.IsPresent());
+         AssertTrue(entry1.IsPresent());
+         AssertFalse(entry2.IsPresent());
       }
 
       public class Entry<TKey, TValue> : IPortableObject

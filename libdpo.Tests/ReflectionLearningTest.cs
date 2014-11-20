@@ -1,42 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NMockito;
+using Xunit;
 
 namespace Dargon.PortableObjects.Tests
 {
-   [TestClass]
-   public class ReflectionLearningTests
+   public class ReflectionLearningTests : NMockitoInstance
    {
-      [TestInitialize]
-      public void Setup()
-      {
-      }
-
-      [TestMethod]
+      [Fact]
       public void GenericTypeDefinitionIsAThing()
       {
          var type = typeof(GenericClass<,>);
-         Assert.IsTrue(type.IsGenericType);
-         Assert.IsTrue(type.IsGenericTypeDefinition);
-         Assert.IsFalse(type.IsGenericParameter);
-         Assert.AreEqual(2, type.GetGenericArguments().Length);
+         AssertTrue(type.IsGenericType);
+         AssertTrue(type.IsGenericTypeDefinition);
+         AssertFalse(type.IsGenericParameter);
+         AssertEquals(2, type.GetGenericArguments().Length);
       }
 
-      [TestMethod]
+      [Fact]
       public void GenericTypeDefinitionIsntAlwaysTrue()
       {
          var type = typeof(GenericClass<int, float>);
-         Assert.IsTrue(type.IsGenericType);
-         Assert.IsFalse(type.IsGenericTypeDefinition);
-         Assert.IsFalse(type.IsGenericParameter);
-         //foreach (var argument in type.GetGenericArguments())
-         //   Console.WriteLine("> " + argument);
-      }
-
-      [TestMethod]
-      public void Run()
-      {
-         var a = new GenericClass<List<int>, float>();
+         AssertTrue(type.IsGenericType);
+         AssertFalse(type.IsGenericTypeDefinition);
+         AssertFalse(type.IsGenericParameter);
       }
    }
 

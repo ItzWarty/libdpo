@@ -1,15 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libdpo", "libdpo.csproj", "{DA87B9E0-3584-4448-97B5-9877CAC44352}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ItzWarty", "..\libwarty\ItzWarty.csproj", "{097B6B08-4034-408A-B3C0-A12E8F9E8893}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libtestutil", "..\libtestutil\libtestutil.csproj", "{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libdpo.Tests", "libdpo.Tests\libdpo.Tests.csproj", "{AC43C47B-9112-42A9-A9E6-94A473D3DFA6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A9707D5C-A697-4A23-9DB8-982BB533147B}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,34 +36,6 @@ Global
 		{DA87B9E0-3584-4448-97B5-9877CAC44352}.TempBuild|Any CPU.ActiveCfg = Release|Any CPU
 		{DA87B9E0-3584-4448-97B5-9877CAC44352}.TempBuild|Any CPU.Build.0 = Release|Any CPU
 		{DA87B9E0-3584-4448-97B5-9877CAC44352}.TempBuild|x86.ActiveCfg = Release|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Debug|x86.ActiveCfg = Debug|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Debug|x86.Build.0 = Debug|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.DummyPlatform|Any CPU.ActiveCfg = DummyPlatform|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.DummyPlatform|Any CPU.Build.0 = DummyPlatform|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.DummyPlatform|x86.ActiveCfg = DummyPlatform|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.DummyPlatform|x86.Build.0 = DummyPlatform|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Release|Any CPU.Build.0 = Release|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Release|x86.ActiveCfg = Release|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.Release|x86.Build.0 = Release|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.TempBuild|Any CPU.ActiveCfg = TempBuild|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.TempBuild|Any CPU.Build.0 = TempBuild|Any CPU
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.TempBuild|x86.ActiveCfg = TempBuild|x86
-		{097B6B08-4034-408A-B3C0-A12E8F9E8893}.TempBuild|x86.Build.0 = TempBuild|x86
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.DummyPlatform|Any CPU.ActiveCfg = Debug|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.DummyPlatform|Any CPU.Build.0 = Debug|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.DummyPlatform|x86.ActiveCfg = Debug|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.Release|x86.ActiveCfg = Release|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.TempBuild|Any CPU.ActiveCfg = Release|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.TempBuild|Any CPU.Build.0 = Release|Any CPU
-		{0060E29C-DB43-45A8-97AF-17D4AEF0DAD7}.TempBuild|x86.ActiveCfg = Release|Any CPU
 		{AC43C47B-9112-42A9-A9E6-94A473D3DFA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AC43C47B-9112-42A9-A9E6-94A473D3DFA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC43C47B-9112-42A9-A9E6-94A473D3DFA6}.Debug|x86.ActiveCfg = Debug|Any CPU
