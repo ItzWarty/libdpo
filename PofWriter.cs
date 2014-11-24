@@ -91,11 +91,11 @@ namespace Dargon.PortableObjects
 
       private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
 
-      public void WriteCollection<T>(int slot, ICollection<T> collection, bool elementsCovariant = false) 
+      public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsCovariant = false) 
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               writer.Write((int)collection.Count);
+               writer.Write((int)collection.Count());
                WriteType(writer, typeof(T));
 
                foreach (var element in collection) {
@@ -109,11 +109,11 @@ namespace Dargon.PortableObjects
          }
       }
 
-      public void WriteMap<TKey, TValue>(int slot, IReadOnlyDictionary<TKey, TValue> dict, bool keysCovariant = false, bool valuesCovariant = false) 
+      public void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysCovariant = false, bool valuesCovariant = false) 
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               writer.Write(dict.Count);
+               writer.Write(dict.Count());
                WriteType(writer, typeof(TKey));
                WriteType(writer, typeof(TValue));
 

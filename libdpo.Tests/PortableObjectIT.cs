@@ -190,7 +190,7 @@ namespace Dargon.PortableObjects.Tests
             int i = 0;
             writer.WriteObject(i++, key);
             writer.WriteS32(i++, level);
-            writer.WriteArray(i++, friends.ToArray());
+            writer.WriteCollection(i++, friends.ToArray());
          }
 
          public void Deserialize(IPofReader reader)
