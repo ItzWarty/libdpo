@@ -102,7 +102,11 @@ namespace Dargon.PortableObjects
          }
       }
 
-      public TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : ICollection<T> {
+      public TCollection ReadCollection<T, TCollection>(int slot, bool elementsCovariant = false) where TCollection : class, ICollection<T>, new() {
+         return ReadCollection<T, TCollection>(slot, new TCollection(), elementsCovariant);
+      }
+
+      public TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : class, ICollection<T> {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
             int length = reader.ReadInt32();
