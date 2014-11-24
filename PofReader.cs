@@ -102,6 +102,26 @@ namespace Dargon.PortableObjects
          }
       }
 
+      public TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : ICollection<T> {
+         using (var stream = CreateSlotMemoryStream(slot))
+         using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
+            int length = reader.ReadInt32();
+            var type = ParseType(reader);
+            Trace.Assert(typeof(T).IsAssignableFrom(type));
+
+            if (elementsCovariant) {
+               for (var i = 0; i < length; i++) {
+                  collection.Add(ReadObject<T>(reader));
+               }
+            } else {
+               for (var i = 0; i < length; i++) {
+                  collection.Add(ReadObjectHelper<T>(type, reader));
+               }
+            }
+         }
+         return collection;
+      }
+
       public IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysCovariant = false, bool valuesCovariant = false, IDictionary<TKey, TValue> dict = null)
       {
          using (var stream = CreateSlotMemoryStream(slot))

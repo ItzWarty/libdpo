@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ItzWarty.Collections;
 
 namespace Dargon.PortableObjects
 {
@@ -90,14 +91,14 @@ namespace Dargon.PortableObjects
 
       private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
 
-      public void WriteArray<T>(int slot, T[] array, bool elementsCovariant = false) 
+      public void WriteCollection<T>(int slot, ICollection<T> collection, bool elementsCovariant = false) 
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               writer.Write((int)array.Length);
+               writer.Write((int)collection.Count);
                WriteType(writer, typeof(T));
 
-               foreach (var element in array) {
+               foreach (var element in collection) {
                   if (elementsCovariant) {
                      WriteType(writer, element.GetType());
                   }
@@ -108,7 +109,7 @@ namespace Dargon.PortableObjects
          }
       }
 
-      public void WriteMap<TKey, TValue>(int slot, IDictionary<TKey, TValue> dict, bool keysCovariant = false, bool valuesCovariant = false) 
+      public void WriteMap<TKey, TValue>(int slot, IReadOnlyDictionary<TKey, TValue> dict, bool keysCovariant = false, bool valuesCovariant = false) 
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {

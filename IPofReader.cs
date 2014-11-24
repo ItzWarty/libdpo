@@ -20,7 +20,8 @@ namespace Dargon.PortableObjects
       bool ReadBoolean(int slot);
       Guid ReadGuid(int slot);
       T ReadObject<T>(int slot);
-      T[] ReadArray<T>(int slot, bool elementsInvariant = false);
-      IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysInvariant = false, bool valuesInvariant = false, IDictionary<TKey, TValue> dict = null);
+      T[] ReadArray<T>(int slot, bool elementsCovariant = false);
+      TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : ICollection<T>;
+      IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysCovariant = false, bool valuesCovariant = false, IDictionary<TKey, TValue> dict = null);
    }
 }
