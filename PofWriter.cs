@@ -104,9 +104,15 @@ namespace Dargon.PortableObjects
 
                foreach (var element in collection) {
                   if (elementsCovariant) {
-                     WriteType(writer, element.GetType());
+                     if (element == null) {
+                        WriteType(writer, typeof(void));
+                     } else {
+                        WriteType(writer, element.GetType());
+                        WriteObjectWithoutTypeDescription(writer, element);
+                     }
+                  } else {
+                     WriteObjectWithoutTypeDescription(writer, element);
                   }
-                  WriteObjectWithoutTypeDescription(writer, element);
                }
             }
             destination.SetSlot(slot, ms.ToArray());
