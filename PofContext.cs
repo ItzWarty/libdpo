@@ -42,6 +42,7 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_STRING, typeof(string));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_BOOL, typeof(bool));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_GUID, typeof(Guid));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_OBJECT, typeof(object));
       }
 
       private void RegisterReservedPortableObjectType(int typeId, Type type)

@@ -22,6 +22,7 @@ namespace Dargon.PortableObjects
       TYPE_STRING = -12,
       TYPE_BOOL = -13,
       TYPE_GUID = -14,
-      TYPE_NULL = -15
+      TYPE_NULL = -15,
+      TYPE_OBJECT = -16,
    }
 }
