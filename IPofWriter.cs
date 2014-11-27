@@ -19,7 +19,7 @@ namespace Dargon.PortableObjects
       void WriteString(int slot, string value);
       void WriteBoolean(int slot, bool value);
       void WriteGuid(int slot, Guid value);
-      void WriteObject<T>(int slot, T portableObject);
+      void WriteObject(int slot, object portableObject);
       void WriteCollection<T>(int slot, IEnumerable<T> array, bool elementsCovariant = false);
       void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> value, bool keysCovariant = false, bool valuesCovariant = false);
    }

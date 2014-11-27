@@ -61,31 +61,32 @@ namespace Dargon.PortableObjects
       public bool ReadBoolean(int slot) { return slots[slot][0] != 0; }
       public Guid ReadGuid(int slot) { return new Guid(slots[slot]); }
 
-      public T ReadObject<T>(int slot) 
-      {
+      public object ReadObject(int slot) {
          using (var reader = GetSlotBinaryReader(slot)) {
-            return ReadObject<T>(reader);
+            return ReadObject(reader);
          }
       }
 
-      private T ReadObject<T>(BinaryReader reader) 
+      public T ReadObject<T>(int slot) { return (T)ReadObject(slot); }
+
+      private object ReadObject(BinaryReader reader) 
       {
          var type = ParseType(reader);
          if (type == typeof(void)) {
-            return default(T); // null
+            return null;
          } else {
-            return ReadObjectHelper<T>(type, reader);
+            return ReadObjectHelper(type, reader);
          }
       }
 
-      private T ReadObjectHelper<T>(Type type, BinaryReader reader)
+      private object ReadObjectHelper(Type type, BinaryReader reader)
       {
          if (context.IsReservedType(type)) {
-            return (T)ReadReservedType(type, reader);
+            return ReadReservedType(type, reader);
          } else {
             var instance = (IPortableObject)Activator.CreateInstance(type);
             instance.Deserialize(new PofReader(context, SlotSourceFactory.CreateFromBinaryReader(reader)));
-            return (T)instance;
+            return instance;
          }
       }
 
@@ -101,9 +102,9 @@ namespace Dargon.PortableObjects
             Trace.Assert(typeof(T).IsAssignableFrom(type));
 
             if (elementsCovariant)
-               return Util.Generate(length, i => ReadObject<T>(reader));
+               return Util.Generate(length, i => (T)ReadObject(reader));
             else
-               return Util.Generate(length, i => ReadObjectHelper<T>(type, reader));
+               return Util.Generate(length, i => (T)ReadObjectHelper(type, reader));
          }
       }
 
@@ -120,11 +121,11 @@ namespace Dargon.PortableObjects
 
             if (elementsCovariant) {
                for (var i = 0; i < length; i++) {
-                  collection.Add(ReadObject<T>(reader));
+                  collection.Add((T)ReadObject(reader));
                }
             } else {
                for (var i = 0; i < length; i++) {
-                  collection.Add(ReadObjectHelper<T>(type, reader));
+                  collection.Add((T)ReadObjectHelper(type, reader));
                }
             }
          }
@@ -149,8 +150,8 @@ namespace Dargon.PortableObjects
                dict = new Dictionary<TKey, TValue>();
 
             for (var i = 0; i < kvpCount; i++) {
-               TKey key = keysCovariant ? ReadObject<TKey>(reader) : ReadObjectHelper<TKey>(keyType, reader);
-               TValue value = valuesCovariant ? ReadObject<TValue>(reader) : ReadObjectHelper<TValue>(valueType, reader);
+               TKey key = keysCovariant ? (TKey)ReadObject(reader) : (TKey)ReadObjectHelper(keyType, reader);
+               TValue value = valuesCovariant ? (TValue)ReadObject(reader) : (TValue)ReadObjectHelper(valueType, reader);
 
                Console.WriteLine("Have key " + key + " value " + value);
                dict.Add(key, value);

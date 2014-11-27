@@ -8,6 +8,13 @@ namespace Dargon.PortableObjects.Tests
    public class ReflectionLearningTests : NMockitoInstance
    {
       [Fact]
+      public void BoxedIntIsValueType() { 
+         object i = 0; 
+         AssertTrue(i.GetType().IsValueType);
+         AssertFalse(i == null);
+      }
+
+      [Fact]
       public void GenericTypeDefinitionIsAThing()
       {
          var type = typeof(GenericClass<,>);

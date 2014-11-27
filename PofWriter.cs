@@ -66,24 +66,24 @@ namespace Dargon.PortableObjects
       public void WriteBoolean(int slot, bool value) { destination.SetSlot(slot, value ? DATA_BOOLEAN_TRUE : DATA_BOOLEAN_FALSE); }
       public void WriteGuid(int slot, Guid value) { destination.SetSlot(slot, value.ToByteArray()); }
 
-      public void WriteObject<T>(int slot, T portableObject)
+      public void WriteObject(int slot, object portableObject)
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               if (!typeof(T).IsValueType && portableObject == null) {
+               if (portableObject == null) {
                   WriteType(writer, typeof(void));
                } else {
                   WriteType(writer, portableObject.GetType());
-                  WriteObjectWithoutTypeDescription<T>(writer, portableObject);
+                  WriteObjectWithoutTypeDescription(writer, portableObject);
                }
             }
             destination.SetSlot(slot, ms.ToArray());
          }
       }
 
-      private void WriteObjectWithoutTypeDescription<T>(BinaryWriter writer, T value)
+      private void WriteObjectWithoutTypeDescription(BinaryWriter writer, object value)
       {
-         if (context.IsReservedType(typeof(T))) {
+         if (context.IsReservedType(value.GetType())) {
             WriteReservedType(writer, value);
          } else {
             var slotDestination = new SlotDestination();

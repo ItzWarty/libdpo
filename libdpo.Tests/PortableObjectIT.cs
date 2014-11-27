@@ -20,6 +20,8 @@ namespace Dargon.PortableObjects.Tests
          context.RegisterPortableObjectType(0x55667788, typeof(PersonEntry));
          context.RegisterPortableObjectType(0x778899AA, typeof(RemovalByLevelThresholdProcessor));
          context.RegisterPortableObjectType(0x30291dea, typeof(FriendClearingProcessor));
+         context.RegisterPortableObjectType(0x093dffae, typeof(Entry<,>));
+         context.RegisterPortableObjectType(0x4ffa39df, typeof(PersonFriend));
       }
 
       [Fact]
@@ -32,6 +34,10 @@ namespace Dargon.PortableObjects.Tests
 
          var personEntry1 = new PersonEntry(key1, 10);
          var personEntry2 = new PersonEntry(key2, 5);
+
+         personEntry1.Friends.Add(new PersonFriend(0xAEF8329dF, "Mark"));
+         personEntry2.Friends.Add(new PersonFriend(0xF8372D33F, "Henry"));
+         personEntry2.Friends.Add(new PersonFriend(0x47928C3ED, "Jane"));
 
          var thresholdsByKey = new Dictionary<PersonKey, int>();
          thresholdsByKey.Add(key1, 30);
@@ -56,12 +62,37 @@ namespace Dargon.PortableObjects.Tests
 
          var entry1 = new Entry<PersonKey, PersonEntry>(key1, personEntry1);
          var entry2 = new Entry<PersonKey, PersonEntry>(key2, personEntry2);
+         using (var ms = new MemoryStream()) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
+               serializer.Serialize(writer, entry1);
+               serializer.Serialize(writer, entry2);
+            }
+            ms.Position = 0;
+            Console.WriteLine(ms.ToArray().ToHex());
+            using (var reader = new BinaryReader(ms, Encoding.UTF8, true)) {
+               entry1 = serializer.Deserialize<Entry<PersonKey, PersonEntry>>(reader);
+               entry2 = serializer.Deserialize<Entry<PersonKey, PersonEntry>>(reader);
+            }
+         }
 
          friendClearingProcessor.Process(entry1);
          friendClearingProcessor.Process(entry2);
 
          levelRemovalProcessor.Process(entry1);
          levelRemovalProcessor.Process(entry2);
+         
+         using (var ms = new MemoryStream()) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
+               serializer.Serialize(writer, entry1);
+               serializer.Serialize(writer, entry2);
+            }
+            ms.Position = 0;
+            Console.WriteLine(ms.ToArray().ToHex());
+            using (var reader = new BinaryReader(ms, Encoding.UTF8, true)) {
+               entry1 = serializer.Deserialize<Entry<PersonKey, PersonEntry>>(reader);
+               entry2 = serializer.Deserialize<Entry<PersonKey, PersonEntry>>(reader);
+            }
+         }
 
          AssertTrue(entry1.IsPresent());
          AssertFalse(entry2.IsPresent());
@@ -88,17 +119,17 @@ namespace Dargon.PortableObjects.Tests
          public void Serialize(IPofWriter writer)
          {
             int i = 0;
+            writer.WriteBoolean(i++, isPresent);
             writer.WriteObject(i++, key);
             writer.WriteObject(i++, value);
-            writer.WriteBoolean(i++, isPresent);
          }
 
          public void Deserialize(IPofReader reader)
          {
             int i = 0;
+            isPresent = reader.ReadBoolean(i++);
             key = reader.ReadObject<TKey>(i++);
             value = reader.ReadObject<TValue>(i++);
-            isPresent = reader.ReadBoolean(i++);
          }
 
          public void Remove()
@@ -151,6 +182,13 @@ namespace Dargon.PortableObjects.Tests
          private ulong id;
          private string name;
 
+         public PersonFriend() { }
+
+         public PersonFriend(ulong id, string name) {
+            this.id = id;
+            this.name = name;
+         }
+
          public void Serialize(IPofWriter writer)
          {
             int i = 0;
@@ -172,7 +210,7 @@ namespace Dargon.PortableObjects.Tests
          private int level;
          private List<PersonFriend> friends;
 
-         public PersonEntry() { }
+         public PersonEntry() { friends = new List<PersonFriend>(); }
 
          public PersonEntry(PersonKey key, int level)
          {
@@ -190,7 +228,7 @@ namespace Dargon.PortableObjects.Tests
             int i = 0;
             writer.WriteObject(i++, key);
             writer.WriteS32(i++, level);
-            writer.WriteCollection(i++, friends.ToArray());
+            writer.WriteCollection(i++, friends);
          }
 
          public void Deserialize(IPofReader reader)
@@ -198,7 +236,7 @@ namespace Dargon.PortableObjects.Tests
             int i = 0;
             key = reader.ReadObject<PersonKey>(i++);
             level = reader.ReadS32(i++);
-            friends = new List<PersonFriend>(reader.ReadArray<PersonFriend>(i++));
+            friends = reader.ReadCollection<PersonFriend, List<PersonFriend>>(i++);
          }
       }
 
