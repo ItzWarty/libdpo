@@ -13,6 +13,7 @@ namespace Dargon.PortableObjects
       private readonly ISlotSource slots;
 
       private static readonly Dictionary<Type, Func<BinaryReader, object>> RESERVED_TYPE_READERS = new Dictionary<Type, Func<BinaryReader, object>> {
+         {typeof(void), reader => null},
          {typeof(sbyte), (reader) => reader.ReadSByte()},
          {typeof(byte), (reader) => reader.ReadByte()},
          {typeof(short), (reader) => reader.ReadInt16()},
@@ -70,7 +71,11 @@ namespace Dargon.PortableObjects
       private T ReadObject<T>(BinaryReader reader) 
       {
          var type = ParseType(reader);
-         return ReadObjectHelper<T>(type, reader);
+         if (type == typeof(void)) {
+            return default(T); // null
+         } else {
+            return ReadObjectHelper<T>(type, reader);
+         }
       }
 
       private T ReadObjectHelper<T>(Type type, BinaryReader reader)

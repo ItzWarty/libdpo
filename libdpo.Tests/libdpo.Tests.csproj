@@ -67,6 +67,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="NullSerializationIT.cs" />
     <Compile Include="PofWriterTest.cs" />
     <Compile Include="PofReaderTest.cs" />
     <Compile Include="PortableObjectIT.cs" />

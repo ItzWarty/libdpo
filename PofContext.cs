@@ -27,6 +27,7 @@ namespace Dargon.PortableObjects
 
       private void RegisterReservedPortableObjectTypes()
       {
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_NULL, typeof(void));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_S8, typeof(sbyte));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_U8, typeof(byte));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_S16, typeof(short));

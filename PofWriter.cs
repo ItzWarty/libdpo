@@ -70,8 +70,12 @@ namespace Dargon.PortableObjects
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               WriteType(writer, portableObject.GetType());
-               WriteObjectWithoutTypeDescription<T>(writer, portableObject);
+               if (!typeof(T).IsValueType && portableObject == null) {
+                  WriteType(writer, typeof(void));
+               } else {
+                  WriteType(writer, portableObject.GetType());
+                  WriteObjectWithoutTypeDescription<T>(writer, portableObject);
+               }
             }
             destination.SetSlot(slot, ms.ToArray());
          }
