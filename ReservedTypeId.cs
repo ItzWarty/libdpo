@@ -24,5 +24,6 @@ namespace Dargon.PortableObjects
       TYPE_GUID = -14,
       TYPE_NULL = -15,
       TYPE_OBJECT = -16,
+      TYPE_ENUMERABLE = -17,
    }
 }

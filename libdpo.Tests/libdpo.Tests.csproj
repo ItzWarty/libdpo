@@ -67,6 +67,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="ArrayAsObjectSerializationTest.cs" />
     <Compile Include="NullSerializationIT.cs" />
     <Compile Include="ObjectCollectionSerializationIT.cs" />
     <Compile Include="PofWriterTest.cs" />

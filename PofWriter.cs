@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ItzWarty;
 using System;
@@ -70,14 +72,22 @@ namespace Dargon.PortableObjects
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               if (portableObject == null) {
-                  WriteType(writer, typeof(void));
-               } else {
-                  WriteType(writer, portableObject.GetType());
-                  WriteObjectWithoutTypeDescription(writer, portableObject);
-               }
+               WriteObjectInternal(writer, portableObject);
             }
             destination.SetSlot(slot, ms.ToArray());
+         }
+      }
+
+      private void WriteObjectInternal(BinaryWriter writer, object portableObject) {
+         if (portableObject == null) {
+            WriteType(writer, typeof(void));
+         } else if (portableObject is IEnumerable && !(portableObject is string)) {
+            // compiler-generated iterator
+            var array = ((IEnumerable)portableObject).Cast<object>().ToArray();
+            WriteCollectionInternal(writer, array, true);
+         } else {
+            WriteType(writer, portableObject.GetType());
+            WriteObjectWithoutTypeDescription(writer, portableObject);
          }
       }
 
@@ -99,23 +109,23 @@ namespace Dargon.PortableObjects
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               writer.Write((int)collection.Count());
-               WriteType(writer, typeof(T));
-
-               foreach (var element in collection) {
-                  if (elementsCovariant) {
-                     if (element == null) {
-                        WriteType(writer, typeof(void));
-                     } else {
-                        WriteType(writer, element.GetType());
-                        WriteObjectWithoutTypeDescription(writer, element);
-                     }
-                  } else {
-                     WriteObjectWithoutTypeDescription(writer, element);
-                  }
-               }
+               WriteCollectionInternal(writer, collection, elementsCovariant);
             }
             destination.SetSlot(slot, ms.ToArray());
+         }
+      }
+
+      private void WriteCollectionInternal<T>(BinaryWriter writer, IEnumerable<T> collection, bool elementsCovariant) {
+         WriteType(writer, typeof(IEnumerable));
+         WriteType(writer, typeof(T));
+         writer.Write((int)collection.Count());
+
+         foreach (var element in collection) {
+            if (elementsCovariant) {
+               WriteObjectInternal(writer, element);
+            } else {
+               WriteObjectWithoutTypeDescription(writer, element);
+            }
          }
       }
 
@@ -130,15 +140,17 @@ namespace Dargon.PortableObjects
                foreach (var kvp in dict) {
                   var key = kvp.Key;
                   if (keysCovariant) {
-                     WriteType(writer, key.GetType());
+                     WriteObjectInternal(writer, key);
+                  } else {
+                     WriteObjectWithoutTypeDescription(writer, key);
                   }
-                  WriteObjectWithoutTypeDescription(writer, key);
 
                   var value = kvp.Value;
                   if (valuesCovariant) {
-                     WriteType(writer, value.GetType());
+                     WriteObjectInternal(writer, value);
+                  } else {
+                     WriteObjectWithoutTypeDescription(writer, value);
                   }
-                  WriteObjectWithoutTypeDescription(writer, value);
                }
             }
             destination.SetSlot(slot, ms.ToArray());

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -74,12 +75,14 @@ namespace Dargon.PortableObjects
          var type = ParseType(reader);
          if (type == typeof(void)) {
             return null;
+         } else if (type == typeof(IEnumerable)) {
+            return ReadArrayInternal<object>(true, reader, false);
          } else {
-            return ReadObjectHelper(type, reader);
+            return ReadObjectWithoutTypeDescription(type, reader);
          }
       }
 
-      private object ReadObjectHelper(Type type, BinaryReader reader)
+      private object ReadObjectWithoutTypeDescription(Type type, BinaryReader reader)
       {
          if (context.IsReservedType(type)) {
             return ReadReservedType(type, reader);
@@ -95,17 +98,23 @@ namespace Dargon.PortableObjects
       public T[] ReadArray<T>(int slot, bool elementsCovariant = false)
       {
          using (var stream = CreateSlotMemoryStream(slot))
-         using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
-         {
-            int length = reader.ReadInt32();
-            var type = ParseType(reader);
-            Trace.Assert(typeof(T).IsAssignableFrom(type));
-
-            if (elementsCovariant)
-               return Util.Generate(length, i => (T)ReadObject(reader));
-            else
-               return Util.Generate(length, i => (T)ReadObjectHelper(type, reader));
+         using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
+            return ReadArrayInternal<T>(elementsCovariant, reader, true);
          }
+      }
+
+      private T[] ReadArrayInternal<T>(bool elementsCovariant, BinaryReader reader, bool readEnumerableTypeHeader) {
+         if (readEnumerableTypeHeader) {
+            ParseType(reader); // throwaway, equals IEnumerable
+         }
+         var type = ParseType(reader);
+         int length = reader.ReadInt32();
+         Trace.Assert(typeof(T).IsAssignableFrom(type));
+
+         if (elementsCovariant)
+            return Util.Generate(length, i => (T)ReadObject(reader));
+         else
+            return Util.Generate(length, i => (T)ReadObjectWithoutTypeDescription(type, reader));
       }
 
       public TCollection ReadCollection<T, TCollection>(int slot, bool elementsCovariant = false) where TCollection : class, ICollection<T>, new() {
@@ -115,18 +124,25 @@ namespace Dargon.PortableObjects
       public TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : class, ICollection<T> {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
-            int length = reader.ReadInt32();
-            var type = ParseType(reader);
-            Trace.Assert(typeof(T).IsAssignableFrom(type));
+            return ReadCollectionInternal<T, TCollection>(reader, collection, elementsCovariant, true);
+         }
+      }
 
-            if (elementsCovariant) {
-               for (var i = 0; i < length; i++) {
-                  collection.Add((T)ReadObject(reader));
-               }
-            } else {
-               for (var i = 0; i < length; i++) {
-                  collection.Add((T)ReadObjectHelper(type, reader));
-               }
+      private TCollection ReadCollectionInternal<T, TCollection>(BinaryReader reader, TCollection collection, bool elementsCovariant, bool readIenumerableTypeHeader) where TCollection : class, ICollection<T> {
+         if (readIenumerableTypeHeader) {
+            ParseType(reader); // throwaway
+         }
+         var type = ParseType(reader);
+         int length = reader.ReadInt32();
+         Trace.Assert(typeof(T).IsAssignableFrom(type));
+
+         if (elementsCovariant) {
+            for (var i = 0; i < length; i++) {
+               collection.Add((T)ReadObject(reader));
+            }
+         } else {
+            for (var i = 0; i < length; i++) {
+               collection.Add((T)ReadObjectWithoutTypeDescription(type, reader));
             }
          }
          return collection;
@@ -150,8 +166,8 @@ namespace Dargon.PortableObjects
                dict = new Dictionary<TKey, TValue>();
 
             for (var i = 0; i < kvpCount; i++) {
-               TKey key = keysCovariant ? (TKey)ReadObject(reader) : (TKey)ReadObjectHelper(keyType, reader);
-               TValue value = valuesCovariant ? (TValue)ReadObject(reader) : (TValue)ReadObjectHelper(valueType, reader);
+               TKey key = keysCovariant ? (TKey)ReadObject(reader) : (TKey)ReadObjectWithoutTypeDescription(keyType, reader);
+               TValue value = valuesCovariant ? (TValue)ReadObject(reader) : (TValue)ReadObjectWithoutTypeDescription(valueType, reader);
 
                Console.WriteLine("Have key " + key + " value " + value);
                dict.Add(key, value);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -43,6 +44,7 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_BOOL, typeof(bool));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_GUID, typeof(Guid));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_OBJECT, typeof(object));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_ENUMERABLE, typeof(IEnumerable));
       }
 
       private void RegisterReservedPortableObjectType(int typeId, Type type)
