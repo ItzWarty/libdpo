@@ -105,8 +105,7 @@ namespace Dargon.PortableObjects
 
       private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
 
-      public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsCovariant = false) 
-      {
+      public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsCovariant = false) {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                WriteCollectionInternal(writer, collection, elementsCovariant);
