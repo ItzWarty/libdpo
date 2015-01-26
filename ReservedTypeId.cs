@@ -25,5 +25,6 @@ namespace Dargon.PortableObjects
       TYPE_NULL = -15,
       TYPE_OBJECT = -16,
       TYPE_ENUMERABLE = -17,
+      TYPE_DATETIME = -18,
    }
 }

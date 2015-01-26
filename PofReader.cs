@@ -1,13 +1,12 @@
+using ItzWarty;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using ItzWarty;
 
-namespace Dargon.PortableObjects
-{
+namespace Dargon.PortableObjects {
    public unsafe class PofReader : IPofReader
    {
       private readonly IPofContext context;
@@ -26,7 +25,8 @@ namespace Dargon.PortableObjects
          {typeof(char), (reader) => reader.ReadChar()},
          {typeof(string), (reader) => reader.ReadNullTerminatedString()},
          {typeof(bool), (reader) => reader.ReadByte() != 0 },
-         {typeof(Guid), (reader) => reader.ReadGuid() }
+         {typeof(Guid), (reader) => reader.ReadGuid() },
+         {typeof(DateTime), (reader) => DateTime.FromBinary(reader.ReadInt64()).ToUniversalTime() },
       };
 
       public PofReader(IPofContext context, ISlotSource slots)
@@ -61,6 +61,7 @@ namespace Dargon.PortableObjects
 
       public bool ReadBoolean(int slot) { return slots[slot][0] != 0; }
       public Guid ReadGuid(int slot) { return new Guid(slots[slot]); }
+      public DateTime ReadDateTime(int slot) { return DateTime.FromBinary(BitConverter.ToInt64(slots[slot], 0)).ToUniversalTime(); }
 
       public object ReadObject(int slot) {
          using (var reader = GetSlotBinaryReader(slot)) {

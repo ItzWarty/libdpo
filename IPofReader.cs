@@ -19,6 +19,7 @@ namespace Dargon.PortableObjects
       string ReadString(int slot);
       bool ReadBoolean(int slot);
       Guid ReadGuid(int slot);
+      DateTime ReadDateTime(int slot);
       object ReadObject(int slot);
       T ReadObject<T>(int slot);
       T[] ReadArray<T>(int slot, bool elementsCovariant = false);
