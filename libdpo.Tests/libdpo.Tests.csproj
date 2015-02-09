@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="ArrayAsObjectSerializationTest.cs" />
     <Compile Include="CollectionSerializationIT.cs" />
+    <Compile Include="CustomActivatorTests.cs" />
     <Compile Include="DateTimeSerializationTests.cs" />
     <Compile Include="NullSerializationIT.cs" />
     <Compile Include="ObjectCollectionSerializationIT.cs" />

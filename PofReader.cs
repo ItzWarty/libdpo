@@ -88,7 +88,7 @@ namespace Dargon.PortableObjects {
          if (context.IsReservedType(type)) {
             return ReadReservedType(type, reader);
          } else {
-            var instance = (IPortableObject)Activator.CreateInstance(type);
+            var instance = context.CreateInstance(type);
             instance.Deserialize(new PofReader(context, SlotSourceFactory.CreateFromBinaryReader(reader)));
             return instance;
          }

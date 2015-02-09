@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace Dargon.PortableObjects
       private readonly Dictionary<Type, int> typeIdByType = new Dictionary<Type, int>();
       private readonly Dictionary<int, Type> reservedTypeByTypeId = new Dictionary<int, Type>();
       private readonly Dictionary<Type, int> typeIdByReservedType = new Dictionary<Type, int>();
+      private readonly Dictionary<Type, Func<IPortableObject>> activatorsByType = new Dictionary<Type, Func<IPortableObject>>();
       private readonly ConcurrentDictionary<PofTypeDescription, Type> typeByDescription = new ConcurrentDictionary<PofTypeDescription, Type>(); 
 
       public PofContext() {
@@ -53,20 +55,45 @@ namespace Dargon.PortableObjects
          reservedTypeByTypeId.Add(typeId, type);
          typeIdByReservedType.Add(type, typeId);
          RegisterPortableObjectTypePrivate(typeId, type);
+         SetActivator(type, () => {
+            throw new InvalidOperationException();
+         });
       }
 
-      public void RegisterPortableObjectType(int typeId, Type type)
-      {
+      public void RegisterPortableObjectType(int typeId, Type type) {
          if (typeId < 0)
             throw new InvalidOperationException("Negative TypeIDs are reserved for system use.");
 
          RegisterPortableObjectTypePrivate(typeId, type);
+         SetActivator(type, () => (IPortableObject)Activator.CreateInstance(type));
+      }
+
+      public void RegisterPortableObjectType<T>(int typeId, Func<T> ctor)
+         where T : IPortableObject {
+         if (typeId < 0)
+            throw new InvalidOperationException("Negative TypeIDs are reserved for system use.");
+
+         RegisterPortableObjectTypePrivate(typeId, typeof(T));
+         SetActivator(typeof(T), () => ctor());
       }
 
       private void RegisterPortableObjectTypePrivate(int typeId, Type type)
       {
          typeByTypeId.Add(typeId, type);
          typeIdByType.Add(type, typeId);
+      }
+
+      private void SetActivator(Type type, Func<IPortableObject> func) {
+         activatorsByType.Add(type, func);
+      }
+
+      public IPortableObject CreateInstance(Type t) {
+         Func<IPortableObject> ctor;
+         if (activatorsByType.TryGetValue(t, out ctor)) {
+            return ctor();
+         } else {
+            return (IPortableObject)Activator.CreateInstance(t);
+         }
       }
 
       public bool IsInterfaceRegistered(Type t)
