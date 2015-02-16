@@ -21,7 +21,7 @@ namespace Dargon.PortableObjects
       void WriteGuid(int slot, Guid value);
       void WriteDateTime(int slot, DateTime now);
       void WriteObject(int slot, object portableObject);
-      void WriteCollection<T>(int slot, IEnumerable<T> array, bool elementsCovariant = false);
-      void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> value, bool keysCovariant = false, bool valuesCovariant = false);
+      void WriteCollection<T>(int slot, IEnumerable<T> array, bool elementsPolymorphic = false);
+      void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> value, bool keysPolymorphic = false, bool valuesPolymorphic = false);
    }
 }

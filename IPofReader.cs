@@ -22,9 +22,9 @@ namespace Dargon.PortableObjects
       DateTime ReadDateTime(int slot);
       object ReadObject(int slot);
       T ReadObject<T>(int slot);
-      T[] ReadArray<T>(int slot, bool elementsCovariant = false);
-      TCollection ReadCollection<T, TCollection>(int slot, bool elementsCovariant = false) where TCollection : class, ICollection<T>, new();
-      TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : class, ICollection<T>;
-      IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysCovariant = false, bool valuesCovariant = false, IDictionary<TKey, TValue> dict = null);
+      T[] ReadArray<T>(int slot, bool elementsPolymorphic = false);
+      TCollection ReadCollection<T, TCollection>(int slot, bool elementsPolymorphic = false) where TCollection : class, ICollection<T>, new();
+      TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsPolymorphic = false) where TCollection : class, ICollection<T>;
+      IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysPolymorphic = false, bool valuesPolymorphic = false, IDictionary<TKey, TValue> dict = null);
    }
 }

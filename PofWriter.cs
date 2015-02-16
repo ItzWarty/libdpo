@@ -107,22 +107,22 @@ namespace Dargon.PortableObjects
 
       private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
 
-      public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsCovariant = false) {
+      public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsPolymorphic = false) {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               WriteCollectionInternal(writer, collection, elementsCovariant);
+               WriteCollectionInternal(writer, collection, elementsPolymorphic);
             }
             destination.SetSlot(slot, ms.ToArray());
          }
       }
 
-      private void WriteCollectionInternal<T>(BinaryWriter writer, IEnumerable<T> collection, bool elementsCovariant) {
+      private void WriteCollectionInternal<T>(BinaryWriter writer, IEnumerable<T> collection, bool elementsPolymorphic) {
          WriteType(writer, typeof(IEnumerable));
          WriteType(writer, typeof(T));
          writer.Write((int)collection.Count());
 
          foreach (var element in collection) {
-            if (elementsCovariant) {
+            if (elementsPolymorphic) {
                WriteObjectInternal(writer, element);
             } else {
                WriteObjectWithoutTypeDescription(writer, element);
@@ -130,7 +130,7 @@ namespace Dargon.PortableObjects
          }
       }
 
-      public void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysCovariant = false, bool valuesCovariant = false) 
+      public void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysPolymorphic = false, bool valuesPolymorphic = false) 
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
@@ -140,14 +140,14 @@ namespace Dargon.PortableObjects
 
                foreach (var kvp in dict) {
                   var key = kvp.Key;
-                  if (keysCovariant) {
+                  if (keysPolymorphic) {
                      WriteObjectInternal(writer, key);
                   } else {
                      WriteObjectWithoutTypeDescription(writer, key);
                   }
 
                   var value = kvp.Value;
-                  if (valuesCovariant) {
+                  if (valuesPolymorphic) {
                      WriteObjectInternal(writer, value);
                   } else {
                      WriteObjectWithoutTypeDescription(writer, value);

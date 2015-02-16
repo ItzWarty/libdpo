@@ -96,15 +96,15 @@ namespace Dargon.PortableObjects {
 
       private object ReadReservedType(Type type, BinaryReader reader) { return RESERVED_TYPE_READERS[type](reader); }
 
-      public T[] ReadArray<T>(int slot, bool elementsCovariant = false)
+      public T[] ReadArray<T>(int slot, bool elementsPolymorphic = false)
       {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
-            return ReadArrayInternal<T>(elementsCovariant, reader, true);
+            return ReadArrayInternal<T>(elementsPolymorphic, reader, true);
          }
       }
 
-      private T[] ReadArrayInternal<T>(bool elementsCovariant, BinaryReader reader, bool readEnumerableTypeHeader) {
+      private T[] ReadArrayInternal<T>(bool elementsPolymorphic, BinaryReader reader, bool readEnumerableTypeHeader) {
          if (readEnumerableTypeHeader) {
             ParseType(reader); // throwaway, equals IEnumerable
          }
@@ -112,24 +112,24 @@ namespace Dargon.PortableObjects {
          int length = reader.ReadInt32();
          Trace.Assert(typeof(T).IsAssignableFrom(type));
 
-         if (elementsCovariant)
+         if (elementsPolymorphic)
             return Util.Generate(length, i => (T)ReadObject(reader));
          else
             return Util.Generate(length, i => (T)ReadObjectWithoutTypeDescription(type, reader));
       }
 
-      public TCollection ReadCollection<T, TCollection>(int slot, bool elementsCovariant = false) where TCollection : class, ICollection<T>, new() {
-         return ReadCollection<T, TCollection>(slot, new TCollection(), elementsCovariant);
+      public TCollection ReadCollection<T, TCollection>(int slot, bool elementsPolymorphic = false) where TCollection : class, ICollection<T>, new() {
+         return ReadCollection<T, TCollection>(slot, new TCollection(), elementsPolymorphic);
       }
 
-      public TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsCovariant = false) where TCollection : class, ICollection<T> {
+      public TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsPolymorphic = false) where TCollection : class, ICollection<T> {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
-            return ReadCollectionInternal<T, TCollection>(reader, collection, elementsCovariant, true);
+            return ReadCollectionInternal<T, TCollection>(reader, collection, elementsPolymorphic, true);
          }
       }
 
-      private TCollection ReadCollectionInternal<T, TCollection>(BinaryReader reader, TCollection collection, bool elementsCovariant, bool readIenumerableTypeHeader) where TCollection : class, ICollection<T> {
+      private TCollection ReadCollectionInternal<T, TCollection>(BinaryReader reader, TCollection collection, bool elementsPolymorphic, bool readIenumerableTypeHeader) where TCollection : class, ICollection<T> {
          if (readIenumerableTypeHeader) {
             ParseType(reader); // throwaway
          }
@@ -137,7 +137,7 @@ namespace Dargon.PortableObjects {
          int length = reader.ReadInt32();
          Trace.Assert(typeof(T).IsAssignableFrom(type));
 
-         if (elementsCovariant) {
+         if (elementsPolymorphic) {
             for (var i = 0; i < length; i++) {
                collection.Add((T)ReadObject(reader));
             }
@@ -149,7 +149,7 @@ namespace Dargon.PortableObjects {
          return collection;
       }
 
-      public IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysCovariant = false, bool valuesCovariant = false, IDictionary<TKey, TValue> dict = null)
+      public IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysPolymorphic = false, bool valuesPolymorphic = false, IDictionary<TKey, TValue> dict = null)
       {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
@@ -167,8 +167,8 @@ namespace Dargon.PortableObjects {
                dict = new Dictionary<TKey, TValue>();
 
             for (var i = 0; i < kvpCount; i++) {
-               TKey key = keysCovariant ? (TKey)ReadObject(reader) : (TKey)ReadObjectWithoutTypeDescription(keyType, reader);
-               TValue value = valuesCovariant ? (TValue)ReadObject(reader) : (TValue)ReadObjectWithoutTypeDescription(valueType, reader);
+               TKey key = keysPolymorphic ? (TKey)ReadObject(reader) : (TKey)ReadObjectWithoutTypeDescription(keyType, reader);
+               TValue value = valuesPolymorphic ? (TValue)ReadObject(reader) : (TValue)ReadObjectWithoutTypeDescription(valueType, reader);
 
                Console.WriteLine("Have key " + key + " value " + value);
                dict.Add(key, value);
