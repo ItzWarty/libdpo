@@ -27,7 +27,20 @@ namespace Dargon.PortableObjects
       TYPE_ENUMERABLE = -17,
       TYPE_DATETIME = -18,
       TYPE_BYTES = -19,
+
+      /// <summary>
+      /// Portable arrays are used to transit array data.
+      /// </summary>
       TYPE_PORTABLE_ARRAY = -20,
       TYPE_PORTABLE_MAP = -21,
+
+      /// <summary>
+      /// Array type is used to properly serialize array generic type parameters.
+      /// e.g. Dictionary of key Int32 and Value Float[] has pof type descriptor
+      /// PortableDictionary { Int32, Array of Float }.
+      /// 
+      /// Regardless, actual array instances are transited over as Portable Arrays. 
+      /// </summary>
+      TYPE_ARRAY = -22,
    }
 }

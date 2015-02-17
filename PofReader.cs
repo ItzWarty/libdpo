@@ -2,8 +2,8 @@ using ItzWarty;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace Dargon.PortableObjects {
@@ -84,13 +84,15 @@ namespace Dargon.PortableObjects {
          }
       }
 
-      private object ReadObjectInternal(BinaryReader reader, Type type) 
-      {
+      private object ReadObjectInternal(BinaryReader reader, Type type) {
+         var inputType = type;
          type = type ?? ParseType(reader);
          if (type == typeof(void)) {
             return null;
          } else if (type == typeof(IEnumerable)) {
             return ReadArrayInternal<object>(reader, false);
+         } else if (type.IsArray) {
+            return DispatchToReadArrayInternal(reader, type, false);
          } else {
             return ReadObjectWithoutTypeDescription(type, reader);
          }
@@ -110,6 +112,17 @@ namespace Dargon.PortableObjects {
             }
          }
       }
+
+      private object DispatchToReadArrayInternal(BinaryReader reader, Type arrayType, bool readType) {
+         var elementType = arrayType.GetElementType();
+         var helper = typeof(PofReader).GetMethod("DispatchToReadArrayInternalHelper", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(elementType);
+         return helper.Invoke(this, new object[] { reader, readType });
+      }
+
+      private object DispatchToReadArrayInternalHelper<TElement>(BinaryReader reader, bool readType) {
+         return ReadArrayInternal<TElement>(reader, readType);
+      }
+
 
       private object ReadReservedType(Type type, BinaryReader reader) { return RESERVED_TYPE_READERS[type](reader); }
 
@@ -195,7 +208,11 @@ namespace Dargon.PortableObjects {
          var type = context.GetTypeOrNull(typeId);
          if (type == null)
             throw new TypeIdNotFoundException(typeId);
-         if (!type.IsGenericTypeDefinition)
+         if (type == typeof(Array)) {
+            var elementType = ParseType(reader);
+            var arrayType = elementType.MakeArrayType();
+            return new PofTypeDescription(new [] { arrayType });
+         } else if (!type.IsGenericTypeDefinition)
             return new PofTypeDescription(new[] { type });
          else
          {

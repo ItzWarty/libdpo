@@ -1,19 +1,14 @@
-using System.Collections;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
 using ItzWarty;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using ItzWarty.Collections;
+using System.Text;
 
-namespace Dargon.PortableObjects
-{
+namespace Dargon.PortableObjects {
    public unsafe class PofWriter : IPofWriter
    {
       private readonly IPofContext context;
@@ -93,15 +88,15 @@ namespace Dargon.PortableObjects
       public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsPolymorphic = false) {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               WriteCollectionInternal(writer, collection, elementsPolymorphic);
+               WriteCollectionInternal(writer, collection, elementsPolymorphic, true);
             }
             destination.SetSlot(slot, ms.ToArray());
          }
       }
 
-      private void WriteCollectionInternal<T>(BinaryWriter writer, IEnumerable<T> collection, bool elementsPolymorphic) {
+      private void WriteCollectionInternal<T>(BinaryWriter writer, IEnumerable<T> collection, bool elementsPolymorphic, bool writeType) {
          var portableArray = SpecialTypes.PortableArray<T>.Create(collection.ToArray(), elementsPolymorphic);
-         WriteObjectInternal(writer, portableArray, true);
+         WriteObjectInternal(writer, portableArray, writeType);
       }
 
       public void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysPolymorphic = false, bool valuesPolymorphic = false) 
@@ -131,12 +126,12 @@ namespace Dargon.PortableObjects
                var dictType = ReflectionHelpers.FindInterfaceByGenericDefinition(portableObjectType, typeof(IDictionary<,>)) ??
                               ReflectionHelpers.FindInterfaceByGenericDefinition(portableObjectType, typeof(IReadOnlyDictionary<,>));
                if (dictType == null) {
-                  DispatchToWriteCollectionInternal(writer, portableObject, elementType);
+                  DispatchToWriteCollectionInternal(writer, portableObject, elementType, writeType);
                } else {
                   DispatchToWriteMapInternal(writer, portableObject, elementType);
                }
             } else {
-               DispatchToWriteCollectionInternal(writer, portableObject, elementType);
+               DispatchToWriteCollectionInternal(writer, portableObject, elementType, writeType);
             }
          } else {
             if (writeType) {
@@ -146,15 +141,15 @@ namespace Dargon.PortableObjects
          }
       }
 
-      private void DispatchToWriteCollectionInternal(BinaryWriter writer, object portableObject, Type elementType) {
+      private void DispatchToWriteCollectionInternal(BinaryWriter writer, object portableObject, Type elementType, bool writeType) {
          var helper = typeof(PofWriter).GetMethod("DispatchToWriteCollectionInternalHelper", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(elementType);
-         helper.Invoke(this, new object[] { writer, portableObject });
+         helper.Invoke(this, new object[] { writer, portableObject, writeType });
       }
 
-      private void DispatchToWriteCollectionInternalHelper<TElementType>(BinaryWriter writer, IEnumerable<TElementType> portableObject) {
+      private void DispatchToWriteCollectionInternalHelper<TElementType>(BinaryWriter writer, IEnumerable<TElementType> portableObject, bool writeType) {
          var collection = portableObject.ToArray();
          var isPolymorphic = !typeof(TElementType).IsValueType && collection.Any(x => x == null || x.GetType() != typeof(TElementType));
-         WriteCollectionInternal(writer, collection, isPolymorphic);
+         WriteCollectionInternal(writer, collection, isPolymorphic, writeType);
       }
 
       private void DispatchToWriteMapInternal(BinaryWriter writer, object portableObject, Type kvpType) {
@@ -203,6 +198,9 @@ namespace Dargon.PortableObjects
                for (var i = genericArguments.Length - 1; i >= 0; i--) {
                   s.Push(genericArguments[i]);
                }
+            } else if (type.IsArray) {
+               types.Add(typeof(Array));
+               s.Push(type.GetElementType());
             } else {
                types.Add(type);
             }

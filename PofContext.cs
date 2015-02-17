@@ -51,6 +51,7 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_BYTES, typeof(byte[]));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_PORTABLE_ARRAY, typeof(SpecialTypes.PortableArray<>));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_PORTABLE_MAP, typeof(SpecialTypes.PortableMap<,>));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_ARRAY, typeof(Array));
       }
 
       private void RegisterReservedPortableObjectType(int typeId, Type type)
