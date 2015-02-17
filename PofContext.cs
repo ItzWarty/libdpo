@@ -22,8 +22,12 @@ namespace Dargon.PortableObjects
       public void MergeContext(PofContext context)
       {
          foreach (var kvp in context.typeByTypeId) {
-            if (kvp.Key >= 0) {
-               RegisterPortableObjectType(kvp.Key, kvp.Value);
+            var pofId = kvp.Key;
+            if (pofId >= 0) {
+               var pofType = kvp.Value;
+               var pofActivator = context.activatorsByType[pofType];
+               RegisterPortableObjectTypePrivate(pofId, pofType);
+               SetActivator(pofType, pofActivator);
             }
          }
       }

@@ -14,7 +14,7 @@ namespace Dargon.PortableObjects.Tests {
       [Fact]
       public void Run() {
          var context = new PofContext();
-         context.RegisterPortableObjectType(1, () => new LogicController(dummyRemoteService));
+         context.MergeContext(new CustomPofContext(1000, dummyRemoteService));
 
          var serializer = new PofSerializer(context);
          using (var ms = new MemoryStream()) {
@@ -67,6 +67,12 @@ namespace Dargon.PortableObjects.Tests {
 
       public interface DummyRemoteService {
          void DoSomething(int value);
+      }
+
+      public class CustomPofContext : PofContext {
+         public CustomPofContext(int basePofId, DummyRemoteService dummyRemoteService) {
+            RegisterPortableObjectType(basePofId + 1, () => new LogicController(dummyRemoteService));
+         }
       }
    }
 
