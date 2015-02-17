@@ -5,8 +5,11 @@ using System.Text;
 using ItzWarty;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using ItzWarty.Collections;
 
 namespace Dargon.PortableObjects
@@ -39,10 +42,7 @@ namespace Dargon.PortableObjects
          this.destination = destination;
       }
 
-      public void WriteToSlots(IPortableObject portableObject)
-      {
-         portableObject.Serialize(this);
-      }
+      public IPofContext Context { get { return context; } }
 
       public void WriteS8(int slot, sbyte value) { destination.SetSlot(slot, new[] { *(byte*)&value }); }
       public void WriteU8(int slot, byte value) { destination.SetSlot(slot, new[] { value }); }
@@ -55,9 +55,8 @@ namespace Dargon.PortableObjects
       public void WriteFloat(int slot, float value) { destination.SetSlot(slot, BitConverter.GetBytes(value)); }
       public void WriteDouble(int slot, double value) { destination.SetSlot(slot, BitConverter.GetBytes(value)); }
       public void WriteChar(int slot, char value) { destination.SetSlot(slot, BitConverter.GetBytes(value)); }
-      
-      public void WriteString(int slot, string value)
-      {
+
+      public void WriteString(int slot, string value) {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.WriteNullTerminatedString(value);
@@ -69,43 +68,25 @@ namespace Dargon.PortableObjects
       public void WriteBoolean(int slot, bool value) { destination.SetSlot(slot, value ? DATA_BOOLEAN_TRUE : DATA_BOOLEAN_FALSE); }
       public void WriteGuid(int slot, Guid value) { destination.SetSlot(slot, value.ToByteArray()); }
       public void WriteDateTime(int slot, DateTime value) { destination.SetSlot(slot, BitConverter.GetBytes(value.ToUniversalTime().ToBinary())); }
+      public void WriteBytes(int slot, byte[] data) { destination.SetSlot(slot, data.ToArray()); }
 
-      public void WriteObject(int slot, object portableObject)
-      {
+      public void WriteObject(int slot, object portableObject) {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               WriteObjectInternal(writer, portableObject);
+               WriteObjectInternal(writer, portableObject, true);
             }
             destination.SetSlot(slot, ms.ToArray());
          }
       }
 
-      private void WriteObjectInternal(BinaryWriter writer, object portableObject) {
-         if (portableObject == null) {
-            WriteType(writer, typeof(void));
-         } else if (portableObject is IEnumerable && !(portableObject is string)) {
-            // compiler-generated iterator
-            var array = ((IEnumerable)portableObject).Cast<object>().ToArray();
-            WriteCollectionInternal(writer, array, true);
-         } else {
-            WriteType(writer, portableObject.GetType());
-            WriteObjectWithoutTypeDescription(writer, portableObject);
+      public void WriteObjectTypeless(int slot, object portableObject) {
+         using (var ms = new MemoryStream()) {
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
+               WriteObjectInternal(writer, portableObject, false);
+            }
+            destination.SetSlot(slot, ms.ToArray());
          }
       }
-
-      private void WriteObjectWithoutTypeDescription(BinaryWriter writer, object value)
-      {
-         if (context.IsReservedType(value.GetType())) {
-            WriteReservedType(writer, value);
-         } else {
-            var slotDestination = new SlotDestination();
-            var pofWriter = new PofWriter(context, slotDestination);
-            pofWriter.WriteToSlots((IPortableObject)value);
-            slotDestination.WriteToWriter(writer);
-         }
-      }
-
-      private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
 
       public void WriteCollection<T>(int slot, IEnumerable<T> collection, bool elementsPolymorphic = false) {
          using (var ms = new MemoryStream()) {
@@ -117,54 +98,98 @@ namespace Dargon.PortableObjects
       }
 
       private void WriteCollectionInternal<T>(BinaryWriter writer, IEnumerable<T> collection, bool elementsPolymorphic) {
-         WriteType(writer, typeof(IEnumerable));
-         WriteType(writer, typeof(T));
-         writer.Write((int)collection.Count());
-
-         foreach (var element in collection) {
-            if (elementsPolymorphic) {
-               WriteObjectInternal(writer, element);
-            } else {
-               WriteObjectWithoutTypeDescription(writer, element);
-            }
-         }
+         var portableArray = SpecialTypes.PortableArray<T>.Create(collection.ToArray(), elementsPolymorphic);
+         WriteObjectInternal(writer, portableArray, true);
       }
 
       public void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysPolymorphic = false, bool valuesPolymorphic = false) 
       {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
-               writer.Write(dict.Count());
-               WriteType(writer, typeof(TKey));
-               WriteType(writer, typeof(TValue));
-
-               foreach (var kvp in dict) {
-                  var key = kvp.Key;
-                  if (keysPolymorphic) {
-                     WriteObjectInternal(writer, key);
-                  } else {
-                     WriteObjectWithoutTypeDescription(writer, key);
-                  }
-
-                  var value = kvp.Value;
-                  if (valuesPolymorphic) {
-                     WriteObjectInternal(writer, value);
-                  } else {
-                     WriteObjectWithoutTypeDescription(writer, value);
-                  }
-               }
+               WriteMapInternal(writer, dict, keysPolymorphic, valuesPolymorphic);
             }
             destination.SetSlot(slot, ms.ToArray());
          }
       }
 
-      private void WriteType(BinaryWriter writer, Type type)
-      {
+      private void WriteMapInternal<TKey, TValue>(BinaryWriter writer, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysPolymorphic, bool valuesPolymorphic) {
+         var portableMap = SpecialTypes.PortableMap<TKey, TValue>.Create(dict.ToArray(), keysPolymorphic, valuesPolymorphic);
+         WriteObjectInternal(writer, portableMap, true);
+      }
+
+      private void WriteObjectInternal(BinaryWriter writer, object portableObject, bool writeType) {
+         if (portableObject == null) {
+            if (writeType) {
+                WriteType(writer, typeof(void));
+            }
+         } else if (portableObject is IEnumerable && !(portableObject is string)) {
+            var portableObjectType = portableObject.GetType();
+            var elementType = ReflectionHelpers.GetIEnumerableElementType(portableObjectType);
+            if (elementType.IsGenericType && elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) {
+               var dictType = ReflectionHelpers.FindInterfaceByGenericDefinition(portableObjectType, typeof(IDictionary<,>)) ??
+                              ReflectionHelpers.FindInterfaceByGenericDefinition(portableObjectType, typeof(IReadOnlyDictionary<,>));
+               if (dictType == null) {
+                  DispatchToWriteCollectionInternal(writer, portableObject, elementType);
+               } else {
+                  DispatchToWriteMapInternal(writer, portableObject, elementType);
+               }
+            } else {
+               DispatchToWriteCollectionInternal(writer, portableObject, elementType);
+            }
+         } else {
+            if (writeType) {
+               WriteType(writer, portableObject.GetType());
+            }
+            WriteObjectWithoutTypeDescription(writer, portableObject);
+         }
+      }
+
+      private void DispatchToWriteCollectionInternal(BinaryWriter writer, object portableObject, Type elementType) {
+         var helper = typeof(PofWriter).GetMethod("DispatchToWriteCollectionInternalHelper", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(elementType);
+         helper.Invoke(this, new object[] { writer, portableObject });
+      }
+
+      private void DispatchToWriteCollectionInternalHelper<TElementType>(BinaryWriter writer, IEnumerable<TElementType> portableObject) {
+         var collection = portableObject.ToArray();
+         var isPolymorphic = !typeof(TElementType).IsValueType && collection.Any(x => x == null || x.GetType() != typeof(TElementType));
+         WriteCollectionInternal(writer, collection, isPolymorphic);
+      }
+
+      private void DispatchToWriteMapInternal(BinaryWriter writer, object portableObject, Type kvpType) {
+         var kvpArguments = kvpType.GetGenericArguments();
+         var keyType = kvpArguments[0];
+         var valueType = kvpArguments[1];
+         var helper = typeof(PofWriter).GetMethod("DispatchToWriteMapInternalHelper", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(keyType, valueType);
+         helper.Invoke(this, new object[] { writer, portableObject });
+      }
+
+      private void DispatchToWriteMapInternalHelper<TKey, TValue>(BinaryWriter writer, IEnumerable<KeyValuePair<TKey, TValue>> portableObject) {
+         var collection = portableObject.ToArray();
+         var keys = collection.Select(x => x.Key);
+         var values = collection.Select(x => x.Value);
+         var keysPolymorphic = !typeof(TKey).IsValueType && keys.Any(x => x == null || x.GetType() != typeof(TKey));
+         var valuesPolymorphic = !typeof(TValue).IsValueType && values.Any(x => x == null || x.GetType() != typeof(TValue));
+         WriteMapInternal(writer, collection, keysPolymorphic, valuesPolymorphic);
+      }
+
+      private void WriteObjectWithoutTypeDescription(BinaryWriter writer, object value) {
+         if (context.IsReservedType(value.GetType())) {
+            WriteReservedType(writer, value);
+         } else {
+            var slotDestination = new SlotDestination();
+            var pofWriter = new PofWriter(context, slotDestination);
+            ((IPortableObject)value).Serialize(pofWriter);
+            slotDestination.WriteToWriter(writer);
+         }
+      }
+
+      private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
+
+      private void WriteType(BinaryWriter writer, Type type) {
          WriteTypeDescription(writer, CreatePofTypeDescription(type));
       }
 
-      private PofTypeDescription CreatePofTypeDescription(Type input)
-      {
+      private PofTypeDescription CreatePofTypeDescription(Type input) {
          var types = new List<Type>();
          var s = new Stack<Type>();
          s.Push(input);
@@ -183,10 +208,19 @@ namespace Dargon.PortableObjects
          return new PofTypeDescription(types.ToArray());
       }
 
-      private void WriteTypeDescription(BinaryWriter writer, PofTypeDescription desc)
-      {
+      private void WriteTypeDescription(BinaryWriter writer, PofTypeDescription desc) {
          foreach (var type in desc.All()) {
             writer.Write((int)context.GetTypeIdByType(type));
+         }
+      }
+
+      private Type ConvertSpecialType(Type t) {
+         if (t.IsArray) {
+            Trace.Assert(t.GetArrayRank() == 1);
+            var elementType = ConvertSpecialType(t.GetElementType());
+            return typeof(SpecialTypes.PortableArray<>).MakeGenericType(elementType);
+         } else {
+            return t;
          }
       }
    }

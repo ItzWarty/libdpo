@@ -32,6 +32,17 @@ namespace Dargon.PortableObjects.Tests
          AssertFalse(type.IsGenericTypeDefinition);
          AssertFalse(type.IsGenericParameter);
       }
+
+      [Fact]
+      public void GenericToDefinitionMatchesTypeOfDefinition() {
+         var x = new KeyValuePair<int, string>();
+         AssertEquals(typeof(KeyValuePair<,>), x.GetType().GetGenericTypeDefinition());
+      }
+
+      [Fact]
+      public void ArraysAreNonGeneric() {
+         AssertFalse(typeof(int[]).IsGenericType);
+      }
    }
 
    public class GenericClass<TParam1, TParam2>

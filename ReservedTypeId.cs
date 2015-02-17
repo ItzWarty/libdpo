@@ -26,5 +26,8 @@ namespace Dargon.PortableObjects
       TYPE_OBJECT = -16,
       TYPE_ENUMERABLE = -17,
       TYPE_DATETIME = -18,
+      TYPE_BYTES = -19,
+      TYPE_PORTABLE_ARRAY = -20,
+      TYPE_PORTABLE_MAP = -21,
    }
 }

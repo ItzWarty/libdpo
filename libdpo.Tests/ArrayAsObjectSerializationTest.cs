@@ -72,11 +72,12 @@ namespace Dargon.PortableObjects.Tests {
          public object Value { get { return value; } }
 
          public void Serialize(IPofWriter writer) {
-            writer.WriteObject(0, value);
+            writer.WriteS32(0, 0x12345678);
+            writer.WriteObject(1, value);
          }
 
          public void Deserialize(IPofReader reader) {
-            value = reader.ReadObject(0);
+            value = reader.ReadObject(1);
          }
       }
    }

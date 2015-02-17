@@ -5,6 +5,8 @@ namespace Dargon.PortableObjects
 {
    public interface IPofReader
    {
+      IPofContext Context { get; }
+
       sbyte ReadS8(int slot);
       byte ReadU8(int slot);
       short ReadS16(int slot);
@@ -20,8 +22,10 @@ namespace Dargon.PortableObjects
       bool ReadBoolean(int slot);
       Guid ReadGuid(int slot);
       DateTime ReadDateTime(int slot);
+      byte[] ReadBytes(int slot);
       object ReadObject(int slot);
       T ReadObject<T>(int slot);
+      T ReadObjectTypeless<T>(int slot);
       T[] ReadArray<T>(int slot, bool elementsPolymorphic = false);
       TCollection ReadCollection<T, TCollection>(int slot, bool elementsPolymorphic = false) where TCollection : class, ICollection<T>, new();
       TCollection ReadCollection<T, TCollection>(int slot, TCollection collection, bool elementsPolymorphic = false) where TCollection : class, ICollection<T>;

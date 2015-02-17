@@ -27,6 +27,7 @@ namespace Dargon.PortableObjects {
          {typeof(bool), (reader) => reader.ReadByte() != 0 },
          {typeof(Guid), (reader) => reader.ReadGuid() },
          {typeof(DateTime), (reader) => DateTime.FromBinary(reader.ReadInt64()).ToUniversalTime() },
+         {typeof(byte[]), (reader) => reader.ReadBytes(reader.ReadInt32()) },
       };
 
       public PofReader(IPofContext context, ISlotSource slots)
@@ -34,6 +35,8 @@ namespace Dargon.PortableObjects {
          this.context = context;
          this.slots = slots;
       }
+
+      public IPofContext Context { get { return context; } }
 
       public sbyte ReadS8(int slot)
       {
@@ -62,22 +65,30 @@ namespace Dargon.PortableObjects {
       public bool ReadBoolean(int slot) { return slots[slot][0] != 0; }
       public Guid ReadGuid(int slot) { return new Guid(slots[slot]); }
       public DateTime ReadDateTime(int slot) { return DateTime.FromBinary(BitConverter.ToInt64(slots[slot], 0)).ToUniversalTime(); }
+      public byte[] ReadBytes(int slot) { return slots[slot]; }
+
+      public T ReadObject<T>(int slot) { return (T)ReadObject(slot); }
+      public T ReadObjectTypeless<T>(int slot) { return (T)ReadObjectTypeless(slot, typeof(T)); }
 
       public object ReadObject(int slot) {
          using (var reader = GetSlotBinaryReader(slot)) {
-            return ReadObject(reader);
+            return ReadObjectInternal(reader, null);
          }
       }
 
-      public T ReadObject<T>(int slot) { return (T)ReadObject(slot); }
+      public object ReadObjectTypeless(int slot, Type type) {
+         using (var reader = GetSlotBinaryReader(slot)) {
+            return ReadObjectInternal(reader, type);
+         }
+      }
 
-      private object ReadObject(BinaryReader reader) 
+      private object ReadObjectInternal(BinaryReader reader, Type type) 
       {
-         var type = ParseType(reader);
+         type = type ?? ParseType(reader);
          if (type == typeof(void)) {
             return null;
          } else if (type == typeof(IEnumerable)) {
-            return ReadArrayInternal<object>(true, reader, false);
+            return ReadArrayInternal<object>(reader, false);
          } else {
             return ReadObjectWithoutTypeDescription(type, reader);
          }
@@ -90,7 +101,11 @@ namespace Dargon.PortableObjects {
          } else {
             var instance = context.CreateInstance(type);
             instance.Deserialize(new PofReader(context, SlotSourceFactory.CreateFromBinaryReader(reader)));
-            return instance;
+            if (instance is SpecialTypes.Base) {
+               return ((SpecialTypes.Base)instance).Unwrap();
+            } else {
+               return instance;
+            }
          }
       }
 
@@ -100,22 +115,21 @@ namespace Dargon.PortableObjects {
       {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true)) {
-            return ReadArrayInternal<T>(elementsPolymorphic, reader, true);
+            return ReadArrayInternal<T>(reader, true);
          }
       }
 
-      private T[] ReadArrayInternal<T>(bool elementsPolymorphic, BinaryReader reader, bool readEnumerableTypeHeader) {
-         if (readEnumerableTypeHeader) {
-            ParseType(reader); // throwaway, equals IEnumerable
-         }
-         var type = ParseType(reader);
-         int length = reader.ReadInt32();
-         Trace.Assert(typeof(T).IsAssignableFrom(type));
-
-         if (elementsPolymorphic)
-            return Util.Generate(length, i => (T)ReadObject(reader));
-         else
-            return Util.Generate(length, i => (T)ReadObjectWithoutTypeDescription(type, reader));
+      private T[] ReadArrayInternal<T>(BinaryReader reader, bool readEnumerableTypeHeader) {
+         return (T[])ReadObjectInternal(reader, readEnumerableTypeHeader ? null : typeof(SpecialTypes.PortableArray<T>));
+         //         if (readEnumerableTypeHeader) {
+         //            ParseType(reader); // throwaway, equals IEnumerable
+         //         }
+         //         var type = ParseType(reader);
+         //         int length = reader.ReadInt32();
+         //         Trace.Assert(typeof(T).IsAssignableFrom(type));
+         //
+         //         var expectedType = elementsPolymorphic ? null : type;
+         //         return Util.Generate(length, i => (T)ReadObjectInternal(reader, expectedType));
       }
 
       public TCollection ReadCollection<T, TCollection>(int slot, bool elementsPolymorphic = false) where TCollection : class, ICollection<T>, new() {
@@ -130,50 +144,29 @@ namespace Dargon.PortableObjects {
       }
 
       private TCollection ReadCollectionInternal<T, TCollection>(BinaryReader reader, TCollection collection, bool elementsPolymorphic, bool readIenumerableTypeHeader) where TCollection : class, ICollection<T> {
-         if (readIenumerableTypeHeader) {
-            ParseType(reader); // throwaway
-         }
-         var type = ParseType(reader);
-         int length = reader.ReadInt32();
-         Trace.Assert(typeof(T).IsAssignableFrom(type));
-
-         if (elementsPolymorphic) {
-            for (var i = 0; i < length; i++) {
-               collection.Add((T)ReadObject(reader));
-            }
-         } else {
-            for (var i = 0; i < length; i++) {
-               collection.Add((T)ReadObjectWithoutTypeDescription(type, reader));
-            }
+         var elements = ReadArrayInternal<T>(reader, readIenumerableTypeHeader);
+         foreach (var element in elements) {
+            collection.Add(element);
          }
          return collection;
       }
 
-      public IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysPolymorphic = false, bool valuesPolymorphic = false, IDictionary<TKey, TValue> dict = null)
-      {
+      public IDictionary<TKey, TValue> ReadMap<TKey, TValue>(int slot, bool keysPolymorphic = false, bool valuesPolymorphic = false, IDictionary<TKey, TValue> dict = null) {
          using (var stream = CreateSlotMemoryStream(slot))
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
          {
-            int kvpCount = reader.ReadInt32();
-            var keyType = ParseType(reader);
-            var valueType = ParseType(reader);
+            return ReadMapInternal(keysPolymorphic, valuesPolymorphic, dict, reader, true);
+         }
+      }
 
-            Trace.Assert(typeof(TKey).IsAssignableFrom(keyType));
-            Trace.Assert(typeof(TValue).IsAssignableFrom(valueType));
-
-            Console.WriteLine("ReadMap has key " + keyType + " vlaue " + valueType);
-
-            if (dict == null)
-               dict = new Dictionary<TKey, TValue>();
-
-            for (var i = 0; i < kvpCount; i++) {
-               TKey key = keysPolymorphic ? (TKey)ReadObject(reader) : (TKey)ReadObjectWithoutTypeDescription(keyType, reader);
-               TValue value = valuesPolymorphic ? (TValue)ReadObject(reader) : (TValue)ReadObjectWithoutTypeDescription(valueType, reader);
-
-               Console.WriteLine("Have key " + key + " value " + value);
-               dict.Add(key, value);
+      private IDictionary<TKey, TValue> ReadMapInternal<TKey, TValue>(bool keysPolymorphic, bool valuesPolymorphic, IDictionary<TKey, TValue> dict, BinaryReader reader, bool readDictionaryHeader) {
+         var readDictionary = (IDictionary<TKey, TValue>)ReadObjectInternal(reader, readDictionaryHeader ? null : typeof(SpecialTypes.PortableMap<TKey, TValue>));
+         if (dict == null) {
+            return readDictionary;
+         } else {
+            foreach (var kvp in readDictionary) {
+               dict.Add(kvp);
             }
-
             return dict;
          }
       }

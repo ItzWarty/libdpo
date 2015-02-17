@@ -5,6 +5,8 @@ namespace Dargon.PortableObjects
 {
    public interface IPofWriter
    {
+      IPofContext Context { get; }
+
       void WriteS8(int slot, sbyte value);
       void WriteU8(int slot, byte value);
       void WriteS16(int slot, short value);
@@ -20,7 +22,9 @@ namespace Dargon.PortableObjects
       void WriteBoolean(int slot, bool value);
       void WriteGuid(int slot, Guid value);
       void WriteDateTime(int slot, DateTime now);
+      void WriteBytes(int slot, byte[] data);
       void WriteObject(int slot, object portableObject);
+      void WriteObjectTypeless(int slot, object portableObject);
       void WriteCollection<T>(int slot, IEnumerable<T> array, bool elementsPolymorphic = false);
       void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> value, bool keysPolymorphic = false, bool valuesPolymorphic = false);
    }

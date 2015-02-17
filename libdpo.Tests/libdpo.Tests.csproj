@@ -74,11 +74,13 @@
     <Compile Include="CollectionSerializationIT.cs" />
     <Compile Include="CustomActivatorTests.cs" />
     <Compile Include="DateTimeSerializationTests.cs" />
+    <Compile Include="NestedCollectionTests.cs" />
     <Compile Include="NullSerializationIT.cs" />
     <Compile Include="ObjectCollectionSerializationIT.cs" />
     <Compile Include="PofWriterTest.cs" />
     <Compile Include="PofReaderTest.cs" />
     <Compile Include="PortableObjectIT.cs" />
+    <Compile Include="ReflectionHelpersTests.cs" />
     <Compile Include="ReflectionLearningTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

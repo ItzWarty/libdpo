@@ -62,6 +62,8 @@ namespace Dargon.PortableObjects.Tests
 
          var entry1 = new Entry<PersonKey, PersonEntry>(key1, personEntry1);
          var entry2 = new Entry<PersonKey, PersonEntry>(key2, personEntry2);
+         var originalEntry1 = entry1;
+         var originalEntry2 = entry2;
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                serializer.Serialize(writer, entry1);
@@ -80,7 +82,10 @@ namespace Dargon.PortableObjects.Tests
 
          levelRemovalProcessor.Process(entry1);
          levelRemovalProcessor.Process(entry2);
-         
+
+         AssertTrue(entry1.IsPresent());
+         AssertFalse(entry2.IsPresent());
+
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                serializer.Serialize(writer, entry1);

@@ -48,6 +48,9 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_OBJECT, typeof(object));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_ENUMERABLE, typeof(IEnumerable));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_DATETIME, typeof(DateTime));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_BYTES, typeof(byte[]));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_PORTABLE_ARRAY, typeof(SpecialTypes.PortableArray<>));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_PORTABLE_MAP, typeof(SpecialTypes.PortableMap<,>));
       }
 
       private void RegisterReservedPortableObjectType(int typeId, Type type)
