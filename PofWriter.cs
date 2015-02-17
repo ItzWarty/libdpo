@@ -29,6 +29,8 @@ namespace Dargon.PortableObjects
          {typeof(uint), (writer, o) => writer.Write((uint)o)},
          {typeof(long), (writer, o) => writer.Write((long)o)},
          {typeof(ulong), (writer, o) => writer.Write((ulong)o)},
+         {typeof(float), (writer, o) => writer.Write((float)o)},
+         {typeof(double), (writer, o) => writer.Write((double)o)},
          {typeof(char), (writer, o) => writer.Write((char)o)},
          {typeof(string), (writer, o) => writer.WriteNullTerminatedString((string)o)},
          {typeof(bool), (writer, o) => writer.Write((bool)o)},

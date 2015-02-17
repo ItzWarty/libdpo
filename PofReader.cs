@@ -22,6 +22,8 @@ namespace Dargon.PortableObjects {
          {typeof(uint), (reader) => reader.ReadUInt32()},
          {typeof(long), (reader) => reader.ReadInt64()},
          {typeof(ulong), (reader) => reader.ReadUInt64()},
+         {typeof(float), (reader) => reader.ReadSingle()},
+         {typeof(double), (reader) => reader.ReadDouble()},
          {typeof(char), (reader) => reader.ReadChar()},
          {typeof(string), (reader) => reader.ReadNullTerminatedString()},
          {typeof(bool), (reader) => reader.ReadByte() != 0 },
