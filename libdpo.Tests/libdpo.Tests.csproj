@@ -77,6 +77,7 @@
     <Compile Include="NestedCollectionTests.cs" />
     <Compile Include="NullSerializationIT.cs" />
     <Compile Include="ObjectCollectionSerializationIT.cs" />
+    <Compile Include="PofContextTests.cs" />
     <Compile Include="PofWriterTest.cs" />
     <Compile Include="PofReaderTest.cs" />
     <Compile Include="PortableObjectIT.cs" />

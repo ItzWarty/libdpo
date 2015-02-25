@@ -62,7 +62,9 @@ namespace Dargon.PortableObjects
       {
          reservedTypeByTypeId.Add(typeId, type);
          typeIdByReservedType.Add(type, typeId);
-         RegisterPortableObjectTypePrivate(typeId, type);
+         if (!RegisterPortableObjectTypePrivate(typeId, type)) {
+            throw new InvalidOperationException("Failed to register reserved portable object type!?");
+         }
          SetActivator(type, () => {
             throw new InvalidOperationException();
          });
@@ -72,8 +74,9 @@ namespace Dargon.PortableObjects
          if (typeId < 0)
             throw new InvalidOperationException("Negative TypeIDs are reserved for system use.");
 
-         RegisterPortableObjectTypePrivate(typeId, type);
-         SetActivator(type, () => (IPortableObject)Activator.CreateInstance(type));
+         if (RegisterPortableObjectTypePrivate(typeId, type)) {
+            SetActivator(type, () => (IPortableObject)Activator.CreateInstance(type));
+         }
       }
 
       public void RegisterPortableObjectType<T>(int typeId, Func<T> ctor)
@@ -81,14 +84,25 @@ namespace Dargon.PortableObjects
          if (typeId < 0)
             throw new InvalidOperationException("Negative TypeIDs are reserved for system use.");
 
-         RegisterPortableObjectTypePrivate(typeId, typeof(T));
-         SetActivator(typeof(T), () => ctor());
+         if (RegisterPortableObjectTypePrivate(typeId, typeof(T))) {
+            SetActivator(typeof(T), () => ctor());
+         }
       }
 
-      private void RegisterPortableObjectTypePrivate(int typeId, Type type)
+      private bool RegisterPortableObjectTypePrivate(int typeId, Type type)
       {
-         typeByTypeId.Add(typeId, type);
-         typeIdByType.Add(type, typeId);
+         try {
+            typeByTypeId.Add(typeId, type);
+            typeIdByType.Add(type, typeId);
+            return true;
+         } catch (ArgumentException) {
+            var existing = typeByTypeId[typeId];
+            if (existing != type) {
+               throw new DuplicatePofIdException(typeId, existing, type);
+            } else {
+               return false;
+            }
+         }
       }
 
       private void SetActivator(Type type, Func<IPortableObject> func) {

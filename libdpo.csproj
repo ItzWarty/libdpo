@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DuplicatePofIdException.cs" />
     <Compile Include="IPofContext.cs" />
     <Compile Include="IPofReader.cs" />
     <Compile Include="IPofSerializer.cs" />
