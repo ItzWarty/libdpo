@@ -67,6 +67,20 @@ namespace Dargon.PortableObjects {
       public void WriteDateTime(int slot, DateTime value) { destination.SetSlot(slot, BitConverter.GetBytes(value.ToUniversalTime().ToBinary())); }
       public void WriteBytes(int slot, byte[] data) { destination.SetSlot(slot, data.ToArray()); }
 
+      public void WriteBytes(int slot, byte[] data, int offset, int length) {
+         var buffer = new byte[length];
+         Buffer.BlockCopy(data, offset, buffer, 0, length);
+         destination.SetSlot(slot, buffer);
+      }
+
+      public void AssignSlot(int slot, byte[] data) {
+         AssignSlot(slot, data, 0, data.Length);
+      }
+
+      public void AssignSlot(int slot, byte[] data, int offset, int length) {
+         destination.SetSlot(slot, data, offset, length);
+      }
+
       public void WriteObject(int slot, object portableObject) {
          using (var ms = new MemoryStream()) {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {

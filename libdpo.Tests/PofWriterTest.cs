@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ItzWarty;
 using NMockito;
@@ -141,6 +142,52 @@ namespace Dargon.PortableObjects.Tests
          var guid = Guid.NewGuid();
          testObj.WriteGuid(SLOT_INDEX, guid);
          Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(guid.ToByteArray()));
+      }
+
+      [Fact]
+      public void TestWriteBytes() {
+         var placedArrayCaptor = new ArgumentCaptor<byte[]>();
+         var random = new Random(0);
+         var data = new byte[100].With(random.NextBytes);
+         testObj.WriteBytes(SLOT_INDEX, data);
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), placedArrayCaptor.GetParameter());
+         VerifyNoMoreInteractions();
+         AssertTrue(placedArrayCaptor.Value != data);
+         AssertTrue(placedArrayCaptor.Value.SequenceEqual(data));
+      }
+
+      [Fact]
+      public void TestWriteBytesOffsetLength() {
+         var placedArrayCaptor = new ArgumentCaptor<byte[]>();
+         var random = new Random(0);
+         var data = new byte[100].With(random.NextBytes);
+         testObj.WriteBytes(SLOT_INDEX, data, 10, 80);
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), placedArrayCaptor.GetParameter());
+         VerifyNoMoreInteractions();
+         AssertTrue(placedArrayCaptor.Value != data);
+         AssertTrue(placedArrayCaptor.Value.SequenceEqual(data.Skip(10).Take(80)));
+      }
+
+      [Fact]
+      public void TestAssignSlot() {
+         var placedArrayCaptor = new ArgumentCaptor<byte[]>();
+         var random = new Random(0);
+         var data = new byte[100].With(random.NextBytes);
+         testObj.AssignSlot(SLOT_INDEX, data);
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), placedArrayCaptor.GetParameter(), Eq(0), Eq(100));
+         VerifyNoMoreInteractions();
+         AssertTrue(placedArrayCaptor.Value == data);
+      }
+
+      [Fact]
+      public void TestAssignSlotOffsetLength() {
+         var placedArrayCaptor = new ArgumentCaptor<byte[]>();
+         var random = new Random(0);
+         var data = new byte[100].With(random.NextBytes);
+         testObj.AssignSlot(SLOT_INDEX, data, 10, 80);
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), placedArrayCaptor.GetParameter(), Eq(10), Eq(80));
+         VerifyNoMoreInteractions();
+         AssertTrue(placedArrayCaptor.Value == data);
       }
    }
 }

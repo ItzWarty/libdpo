@@ -23,9 +23,13 @@ namespace Dargon.PortableObjects
       void WriteGuid(int slot, Guid value);
       void WriteDateTime(int slot, DateTime now);
       void WriteBytes(int slot, byte[] data);
+      void WriteBytes(int slot, byte[] data, int offset, int length);
       void WriteObject(int slot, object portableObject);
       void WriteObjectTypeless(int slot, object portableObject);
       void WriteCollection<T>(int slot, IEnumerable<T> array, bool elementsPolymorphic = false);
       void WriteMap<TKey, TValue>(int slot, IEnumerable<KeyValuePair<TKey, TValue>> value, bool keysPolymorphic = false, bool valuesPolymorphic = false);
+
+      void AssignSlot(int slot, byte[] data);
+      void AssignSlot(int slot, byte[] data, int offset, int length);
    }
 }
