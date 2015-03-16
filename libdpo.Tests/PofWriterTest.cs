@@ -134,7 +134,11 @@ namespace Dargon.PortableObjects.Tests
             }
             data = ms.ToArray();
          }
-         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(data));
+
+         var streamCaptor = new ArgumentCaptor<MemoryStream>();
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), streamCaptor.GetParameter());
+         VerifyNoMoreInteractions();
+         AssertTrue(Encoding.UTF8.GetString(streamCaptor.Value.ToArray()).Equals(value + "\0"));
       }
 
       [Fact]

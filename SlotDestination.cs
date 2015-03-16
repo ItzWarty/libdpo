@@ -22,6 +22,10 @@ namespace Dargon.PortableObjects
          slots.Add(slot, new SlotValue(value, offset, length));
       }
 
+      public void SetSlot(int slot, MemoryStream ms) {
+         SetSlot(slot, ms.GetBuffer(), 0, (int)ms.Length);
+      }
+
       public byte[] this[int slot] {
          get {
             var value = slots[slot];

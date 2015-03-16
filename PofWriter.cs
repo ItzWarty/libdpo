@@ -58,7 +58,7 @@ namespace Dargon.PortableObjects {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                writer.WriteNullTerminatedString(value);
             }
-            destination.SetSlot(slot, ms.ToArray());
+            destination.SetSlot(slot, ms);
          }
       }
 
@@ -86,7 +86,7 @@ namespace Dargon.PortableObjects {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                WriteObjectInternal(writer, portableObject, true);
             }
-            destination.SetSlot(slot, ms.ToArray());
+            destination.SetSlot(slot, ms);
          }
       }
 
@@ -95,7 +95,7 @@ namespace Dargon.PortableObjects {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                WriteObjectInternal(writer, portableObject, false);
             }
-            destination.SetSlot(slot, ms.ToArray());
+            destination.SetSlot(slot, ms);
          }
       }
 
@@ -104,7 +104,7 @@ namespace Dargon.PortableObjects {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                WriteCollectionInternal(writer, collection, elementsPolymorphic, true);
             }
-            destination.SetSlot(slot, ms.ToArray());
+            destination.SetSlot(slot, ms);
          }
       }
 
@@ -119,7 +119,7 @@ namespace Dargon.PortableObjects {
             using (var writer = new BinaryWriter(ms, Encoding.UTF8, true)) {
                WriteMapInternal(writer, dict, keysPolymorphic, valuesPolymorphic);
             }
-            destination.SetSlot(slot, ms.ToArray());
+            destination.SetSlot(slot, ms);
          }
       }
 
