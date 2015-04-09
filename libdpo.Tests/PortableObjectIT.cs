@@ -73,7 +73,13 @@ namespace Dargon.PortableObjects.Tests
             Console.WriteLine(ms.ToArray().ToHex());
             using (var reader = new BinaryReader(ms, Encoding.UTF8, true)) {
                entry1 = serializer.Deserialize<Entry<PersonKey, PersonEntry>>(reader);
-               entry2 = serializer.Deserialize<Entry<PersonKey, PersonEntry>>(reader);
+
+               int frameLength = reader.ReadInt32();
+               var frameBody = reader.ReadBytes(frameLength);
+               using (var innerMs = new MemoryStream(frameBody))
+               using (var innerReader = new BinaryReader(innerMs, Encoding.UTF8, true)) {
+                  entry2 = (Entry<PersonKey, PersonEntry>)serializer.Deserialize(innerReader, SerializationFlags.Lengthless, null) ;
+               }
             }
          }
 

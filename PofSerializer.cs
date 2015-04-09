@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using ItzWarty;
 using ItzWarty.IO;
 
 namespace Dargon.PortableObjects
@@ -80,14 +81,24 @@ namespace Dargon.PortableObjects
       }
 
       public object Deserialize(BinaryReader reader, SerializationFlags serializationFlags, Type type) {
-         var dataLength = reader.ReadInt32();
-         var data = reader.ReadBytes(dataLength);
+         var data = ReadPofFrame(reader, serializationFlags);
          var pofReader = new PofReader(context, SlotSourceFactory.CreateWithSingleSlot(data));
          if (serializationFlags.HasFlag(SerializationFlags.Typeless)) {
             return pofReader.ReadObjectTypeless(0, type);
          } else {
             return pofReader.ReadObject(0);
          }
+      }
+
+      private static byte[] ReadPofFrame(BinaryReader reader, SerializationFlags serializationFlags) {
+         byte[] data;
+         if (serializationFlags.HasFlag(SerializationFlags.Lengthless)) {
+            data = reader.ReadAllBytes();
+         } else {
+            var dataLength = reader.ReadInt32();
+            data = reader.ReadBytes(dataLength);
+         }
+         return data;
       }
    }
 }
