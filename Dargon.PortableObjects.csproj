@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Dargon.PortableObjects</RootNamespace>
-    <AssemblyName>libdpo</AssemblyName>
+    <AssemblyName>Dargon.PortableObjects</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
@@ -34,12 +34,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="libwarty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\libwarty.proxies-api.0.0.16\lib\net45\libwarty.dll</HintPath>
+    <Reference Include="ItzWarty.Commons">
+      <HintPath>packages\ItzWarty.Commons.0.1.1\lib\portable-net45+netcore45+MonoAndroid1+MonoTouch1\ItzWarty.Commons.dll</HintPath>
     </Reference>
-    <Reference Include="libwarty.proxies-api">
-      <HintPath>packages\libwarty.proxies-api.0.0.16\lib\net45\libwarty.proxies-api.dll</HintPath>
+    <Reference Include="ItzWarty.Proxies.Api">
+      <HintPath>packages\ItzWarty.Proxies.Api.0.1.0\lib\net45\ItzWarty.Proxies.Api.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -76,7 +75,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

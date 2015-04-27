@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Portable Object serialization and deserialization.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("The Dargon Project")]
-[assembly: AssemblyProduct("libdpo")]
+[assembly: AssemblyProduct("Dargon.PortableObjects")]
 [assembly: AssemblyCopyright("Copyright © ItzWarty 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
