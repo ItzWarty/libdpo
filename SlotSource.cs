@@ -9,6 +9,8 @@
          this.slots = slots;
       }
 
+      public int Count => slots.Length;
+
       public byte[] GetSlot(int slotId)
       {
          return this.slots[slotId];
