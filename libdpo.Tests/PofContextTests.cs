@@ -39,6 +39,14 @@ namespace Dargon.PortableObjects.Tests {
       }
 
       [Fact]
+      public void HasTypeIdTest() {
+         AssertFalse(testObj.HasTypeId(1));
+         testObj.RegisterPortableObjectType(1, typeof(DummyClass));
+         AssertTrue(testObj.HasTypeId(1));
+         VerifyNoMoreInteractions();
+      }
+
+      [Fact]
       public void RegisterPortableObjectType_NegativeIdByType_Throws() {
          AssertThrows<ArgumentOutOfRangeException>(
             () => testObj.RegisterPortableObjectType(-1337, typeof(DummyClass))
