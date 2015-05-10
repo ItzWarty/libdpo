@@ -8,6 +8,7 @@ namespace Dargon.PortableObjects
 {
    public class PofSerializer : IPofSerializer {
       private readonly IPofContext context;
+      private static readonly SlotSourceFactoryInternal slotSourceFactory = new SlotSourceFactoryInternalImpl();
 
       public PofSerializer(IPofContext context)
       {
@@ -82,7 +83,7 @@ namespace Dargon.PortableObjects
 
       public object Deserialize(BinaryReader reader, SerializationFlags serializationFlags, Type type) {
          var data = ReadPofFrame(reader, serializationFlags);
-         var pofReader = new PofReader(context, SlotSourceFactory.CreateWithSingleSlot(data));
+         var pofReader = new PofReader(context, slotSourceFactory.CreateWithSingleSlot(data));
          if (serializationFlags.HasFlag(SerializationFlags.Typeless)) {
             return pofReader.ReadObjectTypeless(0, type);
          } else {
