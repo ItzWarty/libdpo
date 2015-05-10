@@ -13,7 +13,7 @@ namespace Dargon.PortableObjects
       private readonly Dictionary<int, Type> reservedTypeByTypeId = new Dictionary<int, Type>();
       private readonly Dictionary<Type, int> typeIdByReservedType = new Dictionary<Type, int>();
       private readonly Dictionary<Type, Func<IPortableObject>> activatorsByType = new Dictionary<Type, Func<IPortableObject>>();
-      private readonly ConcurrentDictionary<PofTypeDescription, Type> typeByDescription = new ConcurrentDictionary<PofTypeDescription, Type>(); 
+      private readonly ConcurrentDictionary<PofTypeDescription, Type> typeByDescription = new ConcurrentDictionary<PofTypeDescription, Type>();
 
       public PofContext() {
          RegisterReservedPortableObjectTypes();
@@ -132,6 +132,10 @@ namespace Dargon.PortableObjects
          if (typeIdByType.TryGetValue(t, out value))
             return value;
          throw new TypeNotFoundException(t);
+      }
+
+      public bool HasTypeId(int typeId) {
+         return typeByTypeId.ContainsKey(typeId);
       }
 
       public Type GetTypeOrNull(int id)

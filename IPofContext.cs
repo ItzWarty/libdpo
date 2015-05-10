@@ -7,6 +7,7 @@ namespace Dargon.PortableObjects {
       bool IsReservedType(Type type);
       bool IsReservedTypeId(int typeId);
       int GetTypeIdByType(Type t);
+      bool HasTypeId(int typeId);
       Type GetTypeOrNull(int id);
       Type GetTypeFromDescription(PofTypeDescription typeDescription);
       IPortableObject CreateInstance(Type t);
