@@ -66,13 +66,13 @@ namespace Dargon.PortableObjects
             throw new InvalidOperationException("Failed to register reserved portable object type!?");
          }
          SetActivator(type, () => {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Attempted to activate a reserved object type - pofwriter/pofreader should handle these explicitly.");
          });
       }
 
       public void RegisterPortableObjectType(int typeId, Type type) {
          if (typeId < 0)
-            throw new InvalidOperationException("Negative TypeIDs are reserved for system use.");
+            throw new ArgumentOutOfRangeException("Negative TypeIDs are reserved for system use.");
 
          if (RegisterPortableObjectTypePrivate(typeId, type)) {
             SetActivator(type, () => (IPortableObject)Activator.CreateInstance(type));
@@ -82,7 +82,7 @@ namespace Dargon.PortableObjects
       public void RegisterPortableObjectType<T>(int typeId, Func<T> ctor)
          where T : IPortableObject {
          if (typeId < 0)
-            throw new InvalidOperationException("Negative TypeIDs are reserved for system use.");
+            throw new ArgumentOutOfRangeException("Negative TypeIDs are reserved for system use.");
 
          if (RegisterPortableObjectTypePrivate(typeId, typeof(T))) {
             SetActivator(typeof(T), () => ctor());

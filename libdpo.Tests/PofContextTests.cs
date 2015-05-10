@@ -40,7 +40,7 @@ namespace Dargon.PortableObjects.Tests {
 
       [Fact]
       public void RegisterPortableObjectType_NegativeIdByType_Throws() {
-         AssertTrue(Util.IsThrown<InvalidOperationException>(
+         AssertTrue(Util.IsThrown<ArgumentOutOfRangeException>(
             () => testObj.RegisterPortableObjectType(-1337, typeof(DummyClass))
          ));
          VerifyNoMoreInteractions();
@@ -48,7 +48,7 @@ namespace Dargon.PortableObjects.Tests {
 
       [Fact]
       public void RegisterPortableObjectType_NegativeIdByActivator_Throws() {
-         AssertTrue(Util.IsThrown<InvalidOperationException>(
+         AssertTrue(Util.IsThrown<ArgumentOutOfRangeException>(
             () => testObj.RegisterPortableObjectType(-1337, () => new DummyClass())
          ));
          VerifyNoMoreInteractions();
