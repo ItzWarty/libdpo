@@ -11,6 +11,7 @@ namespace Dargon.PortableObjects {
    {
       private readonly IPofContext context;
       private readonly ISlotSource slots;
+      private static readonly SlotSourceFactory slotSourceFactory = new SlotSourceFactoryImpl();
 
       private static readonly Dictionary<Type, Func<BinaryReader, object>> RESERVED_TYPE_READERS = new Dictionary<Type, Func<BinaryReader, object>> {
          {typeof(void), reader => null},
@@ -104,7 +105,7 @@ namespace Dargon.PortableObjects {
             return ReadReservedType(type, reader);
          } else {
             var instance = context.CreateInstance(type);
-            instance.Deserialize(new PofReader(context, SlotSourceFactory.CreateFromBinaryReader(reader)));
+            instance.Deserialize(new PofReader(context, slotSourceFactory.CreateFromBinaryReader(reader)));
             if (instance is SpecialTypes.Base) {
                return ((SpecialTypes.Base)instance).Unwrap();
             } else {
