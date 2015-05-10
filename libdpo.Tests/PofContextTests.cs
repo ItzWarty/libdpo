@@ -32,25 +32,33 @@ namespace Dargon.PortableObjects.Tests {
          testObj.RegisterPortableObjectType(1, typeof(DummyClass));
          VerifyNoMoreInteractions();
 
-         AssertTrue(Util.IsThrown<DuplicatePofIdException>(() =>
+         Assert.Throws<DuplicatePofIdException>(() =>
             testObj.RegisterPortableObjectType(1, typeof(DummyClass2))
-         ));
+         );
          VerifyNoMoreInteractions();
       }
 
       [Fact]
       public void RegisterPortableObjectType_NegativeIdByType_Throws() {
-         AssertTrue(Util.IsThrown<InvalidOperationException>(
+         AssertThrows<ArgumentOutOfRangeException>(
             () => testObj.RegisterPortableObjectType(-1337, typeof(DummyClass))
-         ));
+         );
          VerifyNoMoreInteractions();
       }
 
       [Fact]
       public void RegisterPortableObjectType_NegativeIdByActivator_Throws() {
-         AssertTrue(Util.IsThrown<InvalidOperationException>(
+         Assert.Throws<ArgumentOutOfRangeException>(
             () => testObj.RegisterPortableObjectType(-1337, () => new DummyClass())
-         ));
+         );
+         VerifyNoMoreInteractions();
+      }
+
+      [Fact]
+      public void RegisterPortableObjectType_ByTypeWithoutParameterlessConstructor_Throws() {
+         Assert.Throws<MissingMethodException>(
+            () => testObj.RegisterPortableObjectType(1337, typeof(DummyClassWithoutDefaultConstructor))
+         );
          VerifyNoMoreInteractions();
       }
 
@@ -62,9 +70,9 @@ namespace Dargon.PortableObjects.Tests {
 
       [Fact]
       public void GetTypeIdByType_UnknownType_Throws() {
-         AssertTrue(Util.IsThrown<TypeNotFoundException>(
+         Assert.Throws<TypeNotFoundException>(
             () => testObj.GetTypeIdByType(typeof(DummyClass2))
-         ));
+         );
          VerifyNoMoreInteractions();
       }
 
@@ -81,6 +89,18 @@ namespace Dargon.PortableObjects.Tests {
          }
 
          public void Deserialize(IPofReader reader) {
+         }
+      }
+
+      public class DummyClassWithoutDefaultConstructor : IPortableObject {
+         public DummyClassWithoutDefaultConstructor(int throwaway) { }
+
+         public void Serialize(IPofWriter writer) {
+            throw new NotImplementedException();
+         }
+
+         public void Deserialize(IPofReader reader) {
+            throw new NotImplementedException();
          }
       }
    }
