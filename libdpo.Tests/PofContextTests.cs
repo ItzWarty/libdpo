@@ -55,6 +55,14 @@ namespace Dargon.PortableObjects.Tests {
       }
 
       [Fact]
+      public void RegisterPortableObjectType_ByTypeWithoutParameterlessConstructor_Throws() {
+         AssertTrue(Util.IsThrown<MissingMethodException>(
+            () => testObj.RegisterPortableObjectType(1337, typeof(DummyClassWithoutDefaultConstructor))
+         ));
+         VerifyNoMoreInteractions();
+      }
+
+      [Fact]
       public void GetTypeOrNull_UnknownType_ReturnsNull() {
          AssertNull(testObj.GetTypeOrNull(13337777));
          VerifyNoMoreInteractions();
@@ -81,6 +89,18 @@ namespace Dargon.PortableObjects.Tests {
          }
 
          public void Deserialize(IPofReader reader) {
+         }
+      }
+
+      public class DummyClassWithoutDefaultConstructor : IPortableObject {
+         public DummyClassWithoutDefaultConstructor(int throwaway) { }
+
+         public void Serialize(IPofWriter writer) {
+            throw new NotImplementedException();
+         }
+
+         public void Deserialize(IPofReader reader) {
+            throw new NotImplementedException();
          }
       }
    }

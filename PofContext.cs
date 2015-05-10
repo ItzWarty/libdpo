@@ -3,6 +3,8 @@ using System.CodeDom;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using ItzWarty;
 
 namespace Dargon.PortableObjects
 {
@@ -73,6 +75,12 @@ namespace Dargon.PortableObjects
       public void RegisterPortableObjectType(int typeId, Type type) {
          if (typeId < 0)
             throw new ArgumentOutOfRangeException("Negative TypeIDs are reserved for system use.");
+
+         if (type.IsClass) {
+            if (type.GetConstructors().None(ctor => ctor.GetParameters().None())) {
+               throw new MissingMethodException("Type " + type.FullName + " does not provide default constructor for POF instantiation!");
+            }
+         }
 
          if (RegisterPortableObjectTypePrivate(typeId, type)) {
             SetActivator(type, () => (IPortableObject)Activator.CreateInstance(type));
