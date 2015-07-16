@@ -22,6 +22,7 @@ namespace Dargon.PortableObjects
       bool ReadBoolean(int slot);
       Guid ReadGuid(int slot);
       DateTime ReadDateTime(int slot);
+      TimeSpan ReadTimeSpan(int slot);
       byte[] ReadBytes(int slot);
       object ReadObject(int slot);
       T ReadObject<T>(int slot);

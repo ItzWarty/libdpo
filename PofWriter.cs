@@ -31,6 +31,7 @@ namespace Dargon.PortableObjects {
          {typeof(bool), (writer, o) => writer.Write((bool)o)},
          {typeof(Guid), (writer, o) => writer.Write((Guid)o)},
          {typeof(DateTime), (writer, o) => writer.Write(BitConverter.GetBytes(((DateTime)o).ToUniversalTime().ToBinary()))},
+         {typeof(TimeSpan), (writer, o) => writer.Write((long)(((TimeSpan)o).Ticks)) },
       }; 
 
       public PofWriter(IPofContext context, ISlotDestination destination)
@@ -65,6 +66,8 @@ namespace Dargon.PortableObjects {
       public void WriteBoolean(int slot, bool value) { destination.SetSlot(slot, value ? DATA_BOOLEAN_TRUE : DATA_BOOLEAN_FALSE); }
       public void WriteGuid(int slot, Guid value) { destination.SetSlot(slot, value.ToByteArray()); }
       public void WriteDateTime(int slot, DateTime value) { destination.SetSlot(slot, BitConverter.GetBytes(value.ToUniversalTime().ToBinary())); }
+      public void WriteTimeSpan(int slot, TimeSpan timeSpan) { destination.SetSlot(slot, BitConverter.GetBytes((long)timeSpan.Ticks)); }
+
       public void WriteBytes(int slot, byte[] data) { destination.SetSlot(slot, data.ToArray()); }
 
       public void WriteBytes(int slot, byte[] data, int offset, int length) {

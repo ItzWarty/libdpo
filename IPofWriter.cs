@@ -21,7 +21,8 @@ namespace Dargon.PortableObjects
       void WriteString(int slot, string value);
       void WriteBoolean(int slot, bool value);
       void WriteGuid(int slot, Guid value);
-      void WriteDateTime(int slot, DateTime now);
+      void WriteDateTime(int slot, DateTime dateTime);
+      void WriteTimeSpan(int slot, TimeSpan timeSpan);
       void WriteBytes(int slot, byte[] data);
       void WriteBytes(int slot, byte[] data, int offset, int length);
       void WriteObject(int slot, object portableObject);

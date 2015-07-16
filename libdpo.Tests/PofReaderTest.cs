@@ -137,6 +137,13 @@ namespace Dargon.PortableObjects.Tests
       }
 
       [Fact]
+      public void ReadTimeSpanTest() {
+         var ts = TimeSpan.FromSeconds(1234);
+         When(slotSource[kSlotIndex]).ThenReturn(BitConverter.GetBytes(ts.Ticks));
+         AssertEquals(ts, testObj.ReadTimeSpan(kSlotIndex));
+      }
+
+      [Fact]
       public void ReadGuidTest() {
          var guid = Guid.NewGuid();
          When(slotSource[kSlotIndex]).ThenReturn(guid.ToByteArray());

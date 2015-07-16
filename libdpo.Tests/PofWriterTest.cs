@@ -142,6 +142,13 @@ namespace Dargon.PortableObjects.Tests
       }
 
       [Fact]
+      public void TestTimeSpan() {
+         var ts = TimeSpan.FromTicks(1234);
+         testObj.WriteTimeSpan(SLOT_INDEX, ts);
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), EqSequence(BitConverter.GetBytes((long)ts.Ticks)));
+      }
+
+      [Fact]
       public void TestGuid() {
          var guid = Guid.NewGuid();
          testObj.WriteGuid(SLOT_INDEX, guid);

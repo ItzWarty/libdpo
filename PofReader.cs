@@ -30,6 +30,7 @@ namespace Dargon.PortableObjects {
          {typeof(bool), (reader) => reader.ReadByte() != 0 },
          {typeof(Guid), (reader) => reader.ReadGuid() },
          {typeof(DateTime), (reader) => DateTime.FromBinary(reader.ReadInt64()).ToUniversalTime() },
+         {typeof(TimeSpan), (reader) => TimeSpan.FromTicks(reader.ReadInt64()) },
          {typeof(byte[]), (reader) => reader.ReadBytes(reader.ReadInt32()) },
       };
 
@@ -68,6 +69,8 @@ namespace Dargon.PortableObjects {
       public bool ReadBoolean(int slot) { return slots[slot][0] != 0; }
       public Guid ReadGuid(int slot) { return new Guid(slots[slot]); }
       public DateTime ReadDateTime(int slot) { return DateTime.FromBinary(BitConverter.ToInt64(slots[slot], 0)).ToUniversalTime(); }
+      public TimeSpan ReadTimeSpan(int slot) { return TimeSpan.FromTicks(BitConverter.ToInt64(slots[slot], 0)); }
+
       public byte[] ReadBytes(int slot) { return slots[slot]; }
 
       public T ReadObject<T>(int slot) { return (T)ReadObject(slot); }

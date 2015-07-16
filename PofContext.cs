@@ -58,6 +58,7 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_PORTABLE_ARRAY, typeof(SpecialTypes.PortableArray<>));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_PORTABLE_MAP, typeof(SpecialTypes.PortableMap<,>));
          RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_ARRAY, typeof(Array));
+         RegisterReservedPortableObjectType((int)ReservedTypeId.TYPE_TIMESPAN, typeof(TimeSpan));
       }
 
       private void RegisterReservedPortableObjectType(int typeId, Type type)
