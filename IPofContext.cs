@@ -11,5 +11,6 @@ namespace Dargon.PortableObjects {
       Type GetTypeOrNull(int id);
       Type GetTypeFromDescription(PofTypeDescription typeDescription);
       IPortableObject CreateInstance(Type t);
+      void MergeContext(IPofContext pofContext);
    }
 }

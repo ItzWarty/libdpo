@@ -21,6 +21,15 @@ namespace Dargon.PortableObjects
          RegisterReservedPortableObjectTypes();
       }
 
+      public void MergeContext(IPofContext pofContext) {
+         var asPofContext = pofContext as PofContext;
+         if (asPofContext != null) {
+            MergeContext(asPofContext);
+         } else {
+            throw new InvalidOperationException("PofContext can only merge with other pof contexts");
+         }
+      }
+
       public void MergeContext(PofContext context)
       {
          foreach (var kvp in context.typeByTypeId) {
