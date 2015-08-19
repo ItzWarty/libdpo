@@ -127,8 +127,12 @@ namespace Dargon.PortableObjects {
       }
 
       private void WriteMapInternal<TKey, TValue>(BinaryWriter writer, IEnumerable<KeyValuePair<TKey, TValue>> dict, bool keysPolymorphic, bool valuesPolymorphic) {
-         var portableMap = SpecialTypes.PortableMap<TKey, TValue>.Create(dict.ToArray(), keysPolymorphic, valuesPolymorphic);
-         WriteObjectInternal(writer, portableMap, true);
+         if (dict == null) {
+            WriteObjectInternal(writer, null, true);
+         } else {
+            var portableMap = SpecialTypes.PortableMap<TKey, TValue>.Create(dict.ToArray(), keysPolymorphic, valuesPolymorphic);
+            WriteObjectInternal(writer, portableMap, true);
+         }
       }
 
       private void WriteObjectInternal(BinaryWriter writer, object portableObject, bool writeType) {
