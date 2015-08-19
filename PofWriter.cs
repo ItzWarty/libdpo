@@ -30,6 +30,7 @@ namespace Dargon.PortableObjects {
          {typeof(string), (writer, o) => writer.WriteNullTerminatedString((string)o)},
          {typeof(bool), (writer, o) => writer.Write((bool)o)},
          {typeof(Guid), (writer, o) => writer.Write((Guid)o)},
+         {typeof(object), (writer, o) => { } },
          {typeof(DateTime), (writer, o) => writer.Write(BitConverter.GetBytes(((DateTime)o).ToUniversalTime().ToBinary()))},
          {typeof(TimeSpan), (writer, o) => writer.Write((long)(((TimeSpan)o).Ticks)) },
       }; 

@@ -29,6 +29,7 @@ namespace Dargon.PortableObjects {
          {typeof(string), (reader) => reader.ReadNullTerminatedString()},
          {typeof(bool), (reader) => reader.ReadByte() != 0 },
          {typeof(Guid), (reader) => reader.ReadGuid() },
+         {typeof(object), (reader) => new object() },
          {typeof(DateTime), (reader) => DateTime.FromBinary(reader.ReadInt64()).ToUniversalTime() },
          {typeof(TimeSpan), (reader) => TimeSpan.FromTicks(reader.ReadInt64()) },
          {typeof(byte[]), (reader) => reader.ReadBytes(reader.ReadInt32()) },

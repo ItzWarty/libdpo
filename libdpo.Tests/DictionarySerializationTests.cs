@@ -33,7 +33,7 @@ namespace Dargon.PortableObjects.Tests {
       }
 
       [Fact]
-      public void TrivialSerializationTest() {
+      public void EmptySerializationTest() {
          IDictionary<int, object> dictionary = new Dictionary<int, object>();
          var serializable = new SerializableClass(dictionary);
          using (var ms = new MemoryStream()) {
@@ -42,6 +42,22 @@ namespace Dargon.PortableObjects.Tests {
             var copy = pofSerializer.Deserialize<SerializableClass>(ms);
             AssertNotNull(copy.Dictionary);
             AssertEquals(0, copy.Dictionary.Count);
+         }
+      }
+
+      [Fact]
+      public void ObjectValueSerializationTest() {
+         IDictionary<int, object> dictionary = new Dictionary<int, object>();
+         dictionary.Add(3, new object());
+         var serializable = new SerializableClass(dictionary);
+         using (var ms = new MemoryStream()) {
+            pofSerializer.Serialize(ms, serializable);
+            ms.Position = 0;
+            var copy = pofSerializer.Deserialize<SerializableClass>(ms);
+            AssertNotNull(copy.Dictionary);
+            AssertEquals(1, copy.Dictionary.Count);
+            AssertEquals(3, copy.Dictionary.Keys.First());
+            AssertEquals(typeof(object), copy.Dictionary.Values.First().GetType());
          }
       }
 
