@@ -61,6 +61,27 @@ namespace Dargon.PortableObjects.Tests {
          }
       }
 
+      [Fact]
+      public void MixedValueSerializationTest() {
+         IDictionary<int, object> dictionary = new Dictionary<int, object>();
+         dictionary.Add(3, null);
+         dictionary.Add(4, new object());
+         var serializable = new SerializableClass(dictionary);
+         using (var ms = new MemoryStream()) {
+            pofSerializer.Serialize(ms, serializable);
+            ms.Position = 0;
+            var copy = pofSerializer.Deserialize<SerializableClass>(ms);
+            AssertNotNull(copy.Dictionary);
+
+            var sortedCopyDictionary = new SortedDictionary<int, object>(copy.Dictionary);
+            AssertEquals(2, sortedCopyDictionary.Count);
+            AssertEquals(3, sortedCopyDictionary.Keys.First());
+            AssertNull(sortedCopyDictionary.Values.First());
+            AssertEquals(4, sortedCopyDictionary.Keys.Last());
+            AssertEquals(typeof(object), sortedCopyDictionary.Values.Last().GetType());
+         }
+      }
+
       public class SerializableClass : IPortableObject {
          private IDictionary<int, object> dictionary;
 
@@ -73,11 +94,11 @@ namespace Dargon.PortableObjects.Tests {
          public IDictionary<int, object> Dictionary => dictionary;
 
          public void Serialize(IPofWriter writer) {
-            writer.WriteMap(0, dictionary);
+            writer.WriteMap(0, dictionary, false, true);
          }
 
          public void Deserialize(IPofReader reader) {
-            dictionary = reader.ReadMap<int, object>(0);
+            dictionary = reader.ReadMap<int, object>(0, false, true);
          }
       }
    }

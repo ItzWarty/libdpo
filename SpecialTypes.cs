@@ -136,7 +136,7 @@ namespace Dargon.PortableObjects {
             using (var elementStreamReader = new BinaryReader(elementStream)) {
                Func<TKey> readKey = keysPolymorphic ? new Func<TKey>(() => (TKey)serializer.Deserialize(elementStreamReader))
                                                     : new Func<TKey>(() => (TKey)serializer.Deserialize(elementStreamReader, SerializationFlags.Typeless, typeof(TKey)));
-               Func<TValue> readValue = keysPolymorphic ? new Func<TValue>(() => (TValue)serializer.Deserialize(elementStreamReader))
+               Func<TValue> readValue = valuesPolymorphic ? new Func<TValue>(() => (TValue)serializer.Deserialize(elementStreamReader))
                                                         : new Func<TValue>(() => (TValue)serializer.Deserialize(elementStreamReader, SerializationFlags.Typeless, typeof(TValue)));
                var items = new Dictionary<TKey, TValue>(count);
                for (var i = 0; i < count; i++) {
