@@ -149,5 +149,18 @@ namespace Dargon.PortableObjects.Tests
          When(slotSource[kSlotIndex]).ThenReturn(guid.ToByteArray());
          AssertEquals(guid, testObj.ReadGuid(kSlotIndex));
       }
+
+      [Fact]
+      public void ReadTypeTest() {
+         var int32TypeId = (int)ReservedTypeId.TYPE_S32;
+         var typeDescriptionCaptor = new ArgumentCaptor<PofTypeDescription>();
+         When(context.GetTypeOrNull(int32TypeId)).ThenReturn(typeof(int));
+         When(context.GetTypeFromDescription(typeDescriptionCaptor.GetParameter())).ThenReturn(typeof(int));
+         When(slotSource[kSlotIndex]).ThenReturn(BitConverter.GetBytes(int32TypeId));
+         AssertEquals(typeof(int), testObj.ReadType(kSlotIndex));
+         var typeDescription = typeDescriptionCaptor.Value;
+         AssertEquals(1, typeDescription.All().Length);
+         AssertEquals(typeof(int), typeDescription.All()[0]);
+      }
    }
 }

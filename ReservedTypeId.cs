@@ -42,6 +42,7 @@ namespace Dargon.PortableObjects
       /// Regardless, actual array instances are transited over as Portable Arrays. 
       /// </summary>
       TYPE_ARRAY = -22,
-      TYPE_TIMESPAN = -23
+      TYPE_TIMESPAN = -23,
+      TYPE_TYPE = -24,
    }
 }

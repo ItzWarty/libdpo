@@ -91,6 +91,7 @@
     <Compile Include="ReflectionHelpersTests.cs" />
     <Compile Include="ReflectionLearningTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeSerializationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dargon.PortableObjects.csproj">

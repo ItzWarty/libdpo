@@ -156,6 +156,20 @@ namespace Dargon.PortableObjects.Tests
       }
 
       [Fact]
+      public void TestType() {
+         var type = typeof(int);
+         var int32TypeId = (int)ReservedTypeId.TYPE_S32;
+         When(context.GetTypeIdByType(typeof(int))).ThenReturn(int32TypeId);
+         testObj.WriteType(SLOT_INDEX, type);
+         var streamCaptor = new ArgumentCaptor<MemoryStream>();
+         Verify(context).GetTypeIdByType(typeof(int));
+         Verify(slotDestination).SetSlot(Eq(SLOT_INDEX), streamCaptor.GetParameter());
+         VerifyNoMoreInteractions();
+         var slotStream = streamCaptor.Value;
+         AssertEquals(slotStream.ToArray(), BitConverter.GetBytes(int32TypeId));
+      }
+
+      [Fact]
       public void TestWriteBytes() {
          var placedArrayCaptor = new ArgumentCaptor<byte[]>();
          var random = new Random(0);

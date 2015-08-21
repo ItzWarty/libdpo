@@ -78,7 +78,7 @@ namespace Dargon.PortableObjects {
 
          public static PortableArray<TElement> CreateNonPolymorphic(TElement[] elements) {
 #if DEBUG
-            Trace.Assert(typeof(TElement).IsValueType || elements.All(x => x != null && x.GetType() == typeof(TElement)));
+            Trace.Assert(typeof(TElement).IsValueType || elements.All(x => x != null && (x.GetType() == typeof(TElement) || typeof(TElement) == typeof(Type))));
 #endif
             return new PortableArray<TElement>(false, elements);
          }

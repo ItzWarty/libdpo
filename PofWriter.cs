@@ -33,6 +33,7 @@ namespace Dargon.PortableObjects {
          {typeof(object), (writer, o) => { } },
          {typeof(DateTime), (writer, o) => writer.Write(BitConverter.GetBytes(((DateTime)o).ToUniversalTime().ToBinary()))},
          {typeof(TimeSpan), (writer, o) => writer.Write((long)(((TimeSpan)o).Ticks)) },
+         {typeof(Type), (writer, o) => { throw new InvalidOperationException("Static Reserved Type Writers map does not support serializing type instances."); } },
       }; 
 
       public PofWriter(IPofContext context, ISlotDestination destination)
@@ -68,6 +69,14 @@ namespace Dargon.PortableObjects {
       public void WriteGuid(int slot, Guid value) { destination.SetSlot(slot, value.ToByteArray()); }
       public void WriteDateTime(int slot, DateTime value) { destination.SetSlot(slot, BitConverter.GetBytes(value.ToUniversalTime().ToBinary())); }
       public void WriteTimeSpan(int slot, TimeSpan timeSpan) { destination.SetSlot(slot, BitConverter.GetBytes((long)timeSpan.Ticks)); }
+      public void WriteType(int slot, Type type) {
+         using (var ms = new MemoryStream()) {
+            using (var writer = new BinaryWriter(ms)) {
+               WriteTypeDescription(writer, CreatePofTypeDescription(type));
+            }
+            destination.SetSlot(slot, ms);
+         }
+      }
 
       public void WriteBytes(int slot, byte[] data) { destination.SetSlot(slot, data.ToArray()); }
 
@@ -156,10 +165,15 @@ namespace Dargon.PortableObjects {
                DispatchToWriteCollectionInternal(writer, portableObject, elementType, writeType);
             }
          } else {
-            if (writeType) {
-               WriteType(writer, portableObject.GetType());
+            var portableObjectType = portableObject.GetType();
+            if (portableObject is Type) {
+               // Type is a base class, e.g. typeof(Console) is a RuntimeType.
+               portableObjectType = typeof(Type);
             }
-            WriteObjectWithoutTypeDescription(writer, portableObject);
+            if (writeType) {
+               WriteType(writer, portableObjectType);
+            }
+            WriteObjectWithoutTypeDescription(writer, portableObject, portableObjectType);
          }
       }
 
@@ -170,7 +184,7 @@ namespace Dargon.PortableObjects {
 
       private void DispatchToWriteCollectionInternalHelper<TElementType>(BinaryWriter writer, IEnumerable<TElementType> portableObject, bool writeType) {
          var collection = portableObject.ToArray();
-         var isPolymorphic = !typeof(TElementType).IsValueType && collection.Any(x => x == null || x.GetType() != typeof(TElementType));
+         var isPolymorphic = !typeof(TElementType).IsValueType && collection.Any(x => x == null || (x.GetType() != typeof(TElementType) && typeof(TElementType) != typeof(Type)));
          WriteCollectionInternal(writer, collection, isPolymorphic, writeType);
       }
 
@@ -191,9 +205,9 @@ namespace Dargon.PortableObjects {
          WriteMapInternal(writer, collection, keysPolymorphic, valuesPolymorphic);
       }
 
-      private void WriteObjectWithoutTypeDescription(BinaryWriter writer, object value) {
-         if (context.IsReservedType(value.GetType())) {
-            WriteReservedType(writer, value);
+      private void WriteObjectWithoutTypeDescription(BinaryWriter writer, object value, Type valueType) {
+         if (context.IsReservedType(valueType)) {
+            WriteReservedType(writer, value, valueType);
          } else {
             var slotDestination = new SlotDestination();
             var pofWriter = new PofWriter(context, slotDestination);
@@ -202,7 +216,13 @@ namespace Dargon.PortableObjects {
          }
       }
 
-      private void WriteReservedType(BinaryWriter writer, object value) { RESERVED_TYPE_WRITERS[value.GetType()](writer, value); }
+      private void WriteReservedType(BinaryWriter writer, object value, Type valueType) {
+         if (valueType == typeof(Type)) {
+            WriteTypeDescription(writer, CreatePofTypeDescription((Type)value));
+         } else {
+            RESERVED_TYPE_WRITERS[valueType](writer, value);
+         }
+      }
 
       private void WriteType(BinaryWriter writer, Type type) {
          WriteTypeDescription(writer, CreatePofTypeDescription(type));

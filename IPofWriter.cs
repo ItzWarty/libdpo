@@ -23,6 +23,7 @@ namespace Dargon.PortableObjects
       void WriteGuid(int slot, Guid value);
       void WriteDateTime(int slot, DateTime dateTime);
       void WriteTimeSpan(int slot, TimeSpan timeSpan);
+      void WriteType(int slot, Type type);
       void WriteBytes(int slot, byte[] data);
       void WriteBytes(int slot, byte[] data, int offset, int length);
       void WriteObject(int slot, object portableObject);

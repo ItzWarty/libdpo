@@ -32,6 +32,7 @@ namespace Dargon.PortableObjects {
          {typeof(object), (reader) => new object() },
          {typeof(DateTime), (reader) => DateTime.FromBinary(reader.ReadInt64()).ToUniversalTime() },
          {typeof(TimeSpan), (reader) => TimeSpan.FromTicks(reader.ReadInt64()) },
+         {typeof(Type), (reader) => { throw new InvalidOperationException("Static Reserved Type Readers map does not support serializing type instances."); }},
          {typeof(byte[]), (reader) => reader.ReadBytes(reader.ReadInt32()) },
       };
 
@@ -71,6 +72,12 @@ namespace Dargon.PortableObjects {
       public Guid ReadGuid(int slot) { return new Guid(slots[slot]); }
       public DateTime ReadDateTime(int slot) { return DateTime.FromBinary(BitConverter.ToInt64(slots[slot], 0)).ToUniversalTime(); }
       public TimeSpan ReadTimeSpan(int slot) { return TimeSpan.FromTicks(BitConverter.ToInt64(slots[slot], 0)); }
+      public Type ReadType(int slot) {
+         using (var ms = new MemoryStream(slots[slot]))
+         using (var reader = new BinaryReader(ms)) {
+            return ParseType(reader);
+         }
+      }
 
       public byte[] ReadBytes(int slot) { return slots[slot]; }
 
@@ -129,7 +136,13 @@ namespace Dargon.PortableObjects {
       }
 
 
-      private object ReadReservedType(Type type, BinaryReader reader) { return RESERVED_TYPE_READERS[type](reader); }
+      private object ReadReservedType(Type type, BinaryReader reader) {
+         if (type == typeof(Type)) {
+            return ParseType(reader);
+         } else {
+            return RESERVED_TYPE_READERS[type](reader);
+         }
+      }
 
       public T[] ReadArray<T>(int slot, bool elementsPolymorphic = false)
       {
