@@ -15,7 +15,7 @@ namespace Dargon.PortableObjects
          this.context = context;
       }
 
-      public void Serialize<T>(Stream stream, T portableObject) where T : IPortableObject {
+      public void Serialize<T>(Stream stream, T portableObject) {
          using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
             Serialize(writer, portableObject);
          }
@@ -27,7 +27,7 @@ namespace Dargon.PortableObjects
          }
       }
 
-      public void Serialize<T>(BinaryWriter writer, T portableObject) where T : IPortableObject { 
+      public void Serialize<T>(BinaryWriter writer, T portableObject) { 
          Serialize(writer, (object)portableObject);
       }
 
@@ -50,7 +50,7 @@ namespace Dargon.PortableObjects
          writer.Write(data);
       }
 
-      public void Serialize<T>(IBinaryWriter writer, T portableObject) where T : IPortableObject {
+      public void Serialize<T>(IBinaryWriter writer, T portableObject) {
          Serialize(writer.__Writer, portableObject);
       }
 
@@ -62,16 +62,16 @@ namespace Dargon.PortableObjects
          Serialize(writer.__Writer, portableObject, serializationFlags);
       }
 
-      public T Deserialize<T>(Stream stream) where T : IPortableObject { return (T)Deserialize(stream); }
+      public T Deserialize<T>(Stream stream) { return (T)Deserialize(stream); }
 
       public object Deserialize(Stream stream) {
          using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
             return Deserialize(reader);
       }
 
-      public T Deserialize<T>(IBinaryReader reader) where T : IPortableObject { return Deserialize<T>(reader.__Reader); }
+      public T Deserialize<T>(IBinaryReader reader) { return Deserialize<T>(reader.__Reader); }
 
-      public T Deserialize<T>(BinaryReader reader) where T : IPortableObject { return (T)Deserialize(reader); }
+      public T Deserialize<T>(BinaryReader reader) { return (T)Deserialize(reader); }
 
       public object Deserialize(IBinaryReader reader) { return Deserialize(reader.__Reader); }
 
