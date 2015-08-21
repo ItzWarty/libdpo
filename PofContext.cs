@@ -175,9 +175,13 @@ namespace Dargon.PortableObjects
       {
          if (!desc.HasGenericDefinition)
             return desc.First();
-         else
-         {
-            return desc.First().MakeGenericType(desc.AfterFirst());
+         else {
+            var genericArguments = desc.AfterFirst();
+            if (genericArguments.All(x => x == typeof(void))) {
+               return desc.First();
+            } else {
+               return desc.First().MakeGenericType(genericArguments);
+            }
          }
       }
    }

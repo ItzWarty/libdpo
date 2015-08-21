@@ -30,7 +30,7 @@ namespace Dargon.PortableObjects.Tests {
          context.RegisterPortableObjectType(0, typeof(DummyClass<>));
          var serializer = new PofSerializer(context);
          using (var ms = new MemoryStream()) {
-            var writtenTypes = new Type[] { typeof(int), typeof(DummyClass<int>) };
+            var writtenTypes = new Type[] { typeof(int), typeof(DummyClass<>), typeof(DummyClass<int>) };
             Debug.WriteLine("Written Types: " + writtenTypes.Join(", "));
             serializer.Serialize(ms, writtenTypes);
             ms.Position = 0;

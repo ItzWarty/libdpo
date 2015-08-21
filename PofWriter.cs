@@ -234,7 +234,13 @@ namespace Dargon.PortableObjects {
          s.Push(input);
          while (s.Any()) {
             var type = s.Pop();
-            if (type.IsGenericType) {
+            if (type.IsGenericTypeDefinition) {
+               types.Add(type);
+               var genericArguments = type.GetGenericArguments();
+               for (var i = 0; i < genericArguments.Length; i++) {
+                  s.Push(typeof(void));
+               }
+            } else if (type.IsGenericType) {
                types.Add(type.GetGenericTypeDefinition());
                var genericArguments = type.GetGenericArguments();
                for (var i = genericArguments.Length - 1; i >= 0; i--) {
